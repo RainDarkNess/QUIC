@@ -41,9 +41,6 @@ if (!QuicListener.IsSupported)
 Console.WriteLine("QUIC is not supported, check for presence of libmsquic and support of TLS 1.3.");
 return;
 }
-
-
-
     
 bool IsWorking = true;
 
@@ -81,6 +78,7 @@ int k = 0;
     var buffer = new byte[4096];
     while(await stream.ReadAsync(buffer) > 0){
         Console.WriteLine("readed: " + buffer.Length+ " bytes");
+        ConsoleText.Text = ConsoleText.Text + "\r readed: " + buffer.Length+ " bytes";
         masaggeToString  = masaggeToString + Encoding.UTF8.GetString(buffer, 0, buffer.Length);
         break;
     }
@@ -119,8 +117,10 @@ int k = 0;
             StreamWriter sw = new StreamWriter(nameOFFile);
             sw.WriteLine(EndStringNew);
             sw.Close();
+            ReadedFiles.Text = ReadedFiles.Text + "\r"+nameOFFile;
         }
 		FileReaderText.Text = "Client sended this: "+EndStringNew;
+        ReadedText.Text = ReadedText.Text+" \r"+EndStringNew;
         await listener.DisposeAsync();
 
     }
@@ -179,5 +179,9 @@ return certificateRequest.CreateSelfSigned(DateTimeOffset.Now.AddDays(-1), DateT
 Console.WriteLine("Exit");
 
 		}
+        async void Button3_Click(object sender, RoutedEventArgs e){
+            ConsoleText.Text = " ";
+            ReadedText.Text = " ";
+        }
 	}
 }

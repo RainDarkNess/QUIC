@@ -10,16 +10,25 @@
 
     <Grid>
 
-<StackPanel Spacing="8">
-<TextBox x:Name="TextBox1" Text="Hello, its QUIC`s server. To start server click on button" Width="1900" Height="100" Margin="20,20,20,20" FontSize="14"/>
-<TextBox x:Name="TextBoxStatus" Text="Here is status of server" Width="1900" Height="100" Margin="20,30,20,20" FontSize="14"/>
-<TextBox x:Name="TextBoxConnect" Text="Here is IP of client" Width="1900" Height="100" Margin="20,40,20,20" FontSize="14"/>
-<TextBox x:Name="FileReaderText" Text="Here text of client" Width="1900" Height="100" Margin="20,50,20,20" FontSize="14"/>
+<StackPanel Spacing="2">
+<TextBox x:Name="TextBox1" Text="Hello, its QUIC`s server. To start server click on button" Width="1900" Height="15" Margin="20,20,20,20" FontSize="11"/>
+<TextBox x:Name="TextBoxStatus" Text="Here is status of server" Width="1900" Height="15" Margin="20,30,20,20" FontSize="11"/>
+<TextBox x:Name="TextBoxConnect" Text="Here is IP of client" Width="1900" Height="15" Margin="20,40,20,20" FontSize="11"/>
+<TextBox x:Name="FileReaderText" Text="Here text of client" Width="1900" Height="15" Margin="20,50,20,20" FontSize="11"/>
+<TextBlock x:Name="ConsoleText" Text="Here is Console" Width="1900" Height="100" Margin="20,50,20,20" FontSize="11"/>
+<TextBlock x:Name="ReadedText" Text="Here is Text" Width="1900" Height="100" Margin="20,50,20,20" FontSize="11"/>
+<TextBlock x:Name="ReadedFiles" Text="Here is readed files" Width="1900" Height="100" Margin="20,50,20,20" FontSize="11"/>
 
     <Button Content="Elevation 0"
             x:Name="Button1"
             Style="{StaticResource MaterialElevatedButtonStyle}"
             Click="Button1_Click"/>
+    
+    <Button Content="Delite all text and console log"
+            x:Name="Button3"
+            Style="{StaticResource MaterialElevatedButtonStyle}"
+            Click="Button3_Click"/>
+
 </StackPanel> 
     
     </Grid>

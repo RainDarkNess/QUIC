@@ -36,47 +36,50 @@ namespace MyApp
 			this.InitializeComponent();
 		}
 		async void Button1_Click(object sender, RoutedEventArgs e){
-    String choose = TextType.Text;
+
+        String choose = TextType.Text;
+
         if(choose != "W" && choose != "w" && choose == "F" && choose == "f"){
             TextBoxStatus.Text = "Repet plize";
-        }else{
-if (!QuicConnection.IsSupported)
-{
-Console.WriteLine("QUIC is not supported, check for presence of libmsquic and support of TLS 1.3.");
-return;
-}
-// X509Certificate cert = new X509Certificate("C:/Users/rain/Desktop/project/clnt/cert.cer");
-var cert2 = CreateSelfSignedCertificate();
-var endPoint = IPEndPoint.Parse("127.0.0.1:8081");
-Console.WriteLine(endPoint);
-var clientConnectionOptions = new QuicClientConnectionOptions
-{
-RemoteEndPoint = endPoint,
-DefaultStreamErrorCode = 0x0A,
-DefaultCloseErrorCode = 0x0B,
-MaxInboundUnidirectionalStreams = 10,
-MaxInboundBidirectionalStreams = 100,
-ClientAuthenticationOptions = new SslClientAuthenticationOptions
-{
-ClientCertificates = new X509CertificateCollection { cert2 },
-ApplicationProtocols = new List<SslApplicationProtocol>
-{
-new SslApplicationProtocol("test")
-},
-//192.168.0.107
-TargetHost = "127.0.0.1",
-RemoteCertificateValidationCallback = (sender, chain, certificate, errors) => true
-}
-};
-var connection = await QuicConnection.ConnectAsync(clientConnectionOptions);
-Console.WriteLine($"Connected {connection.LocalEndPoint} —> {connection.RemoteEndPoint}");
-TextBoxStatus.Text = $"Connected {connection.LocalEndPoint} —> {connection.RemoteEndPoint}";
+        }
+        else if(choose == "F" || choose == "f"){
+            foreach(string pathString in pathOfFiles){
+
+        if (!QuicConnection.IsSupported)
+        {
+            Console.WriteLine("QUIC is not supported, check for presence of libmsquic and support of TLS 1.3.");
+            return;
+        }
+
+    var cert2 = CreateSelfSignedCertificate();
+    var endPoint = IPEndPoint.Parse("127.0.0.1:8081");
+    Console.WriteLine(endPoint);
+
+var clientConnectionOptions = new QuicClientConnectionOptions{
+        RemoteEndPoint = endPoint,
+        DefaultStreamErrorCode = 0x0A,
+        DefaultCloseErrorCode = 0x0B,
+        MaxInboundUnidirectionalStreams = 10,
+        MaxInboundBidirectionalStreams = 100,
+        ClientAuthenticationOptions = new SslClientAuthenticationOptions
+        {
+        ClientCertificates = new X509CertificateCollection { cert2 },
+        ApplicationProtocols = new List<SslApplicationProtocol>
+        {
+        new SslApplicationProtocol("test")
+        },
+        //192.168.0.107
+        TargetHost = "127.0.0.1",
+        RemoteCertificateValidationCallback = (sender, chain, certificate, errors) => true
+        }
+    };
+    var connection = await QuicConnection.ConnectAsync(clientConnectionOptions);
+    Console.WriteLine($"Connected {connection.LocalEndPoint} —> {connection.RemoteEndPoint}");
+    TextBoxStatus.Text = $"Connected {connection.LocalEndPoint} —> {connection.RemoteEndPoint}";
 
     //Pass the file path and file name to the StreamReader constructor
     Console.WriteLine("Choose, File - [F] or Write to file - [W]");
-    if(choose == "F" || choose == "f"){
-        foreach(string pathString in pathOfFiles){
-            Console.WriteLine(pathString);
+        Console.WriteLine(pathString);
     try
     {
         string[] name_arr = pathString.Split('/');
@@ -119,8 +122,90 @@ TextBoxStatus.Text = $"Connected {connection.LocalEndPoint} —> {connection.Rem
     {
         Console.WriteLine("Executing finally block.");
     }
-}
-}else if(choose == "W" || choose == "w"){
+
+        StatusOfSend.Text = StatusOfSend.Text + " done...";
+X509Certificate2 CreateSelfSignedCertificate()
+{
+    var rsa = RSA.Create();
+    var certificateRequest = new CertificateRequest("CN= localhost", rsa, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1);
+    certificateRequest.CertificateExtensions.Add(
+    new X509BasicConstraintsExtension(
+    certificateAuthority: false,
+    hasPathLengthConstraint: false,
+    pathLengthConstraint: 0,
+    critical: true
+)
+);
+    certificateRequest.CertificateExtensions.Add(
+    new X509KeyUsageExtension(
+    keyUsages:
+    X509KeyUsageFlags.DigitalSignature | X509KeyUsageFlags.KeyEncipherment |
+    X509KeyUsageFlags.CrlSign | X509KeyUsageFlags.KeyCertSign,
+    critical: false
+)
+);
+    certificateRequest.CertificateExtensions.Add(
+    new X509EnhancedKeyUsageExtension(
+    new OidCollection {
+    new Oid("1.3.6.1.5.5.7.3.2"), // TLS Client auth
+    new Oid("1.3.6.1.5.5.7.3.1") // TLS Server auth
+},
+false));
+    certificateRequest.CertificateExtensions.Add(
+    new X509SubjectKeyIdentifierExtension(
+    key: certificateRequest.PublicKey,
+    critical: false
+)
+);
+    var sanBuilder = new SubjectAlternativeNameBuilder();
+    sanBuilder.AddDnsName("localhost");
+    certificateRequest.CertificateExtensions.Add(sanBuilder.Build());
+    return certificateRequest.CreateSelfSigned(DateTimeOffset.Now.AddDays(-1), DateTimeOffset.Now.AddYears(5));
+    }
+        }
+        }
+
+
+
+
+    else if(choose == "W" || choose == "w"){
+
+
+    if (!QuicConnection.IsSupported)
+    {
+        Console.WriteLine("QUIC is not supported, check for presence of libmsquic and support of TLS 1.3.");
+        return;
+    }
+
+    var cert2 = CreateSelfSignedCertificate();
+    var endPoint = IPEndPoint.Parse("127.0.0.1:8081");
+    Console.WriteLine(endPoint);
+
+    var clientConnectionOptions = new QuicClientConnectionOptions{
+        RemoteEndPoint = endPoint,
+        DefaultStreamErrorCode = 0x0A,
+        DefaultCloseErrorCode = 0x0B,
+        MaxInboundUnidirectionalStreams = 10,
+        MaxInboundBidirectionalStreams = 100,
+        ClientAuthenticationOptions = new SslClientAuthenticationOptions
+        {
+        ClientCertificates = new X509CertificateCollection { cert2 },
+        ApplicationProtocols = new List<SslApplicationProtocol>
+        {
+        new SslApplicationProtocol("test")
+        },
+        //192.168.0.107
+        TargetHost = "127.0.0.1",
+        RemoteCertificateValidationCallback = (sender, chain, certificate, errors) => true
+        }
+    };
+    var connection = await QuicConnection.ConnectAsync(clientConnectionOptions);
+    Console.WriteLine($"Connected {connection.LocalEndPoint} —> {connection.RemoteEndPoint}");
+    TextBoxStatus.Text = $"Connected {connection.LocalEndPoint} —> {connection.RemoteEndPoint}";
+
+    //Pass the file path and file name to the StreamReader constructor
+    Console.WriteLine("Choose, File - [F] or Write to file - [W]");
+
         Console.WriteLine("Writing");
         String WriteString = TextPath.Text;
 
@@ -131,48 +216,54 @@ TextBoxStatus.Text = $"Connected {connection.LocalEndPoint} —> {connection.Rem
         var buffer = new byte[4096];
         await stream.ReadAsync(buffer);
         // Console.WriteLine(Encoding.UTF8.GetString(buffer, 0, buffer.Length));
-}
         StatusOfSend.Text = StatusOfSend.Text + " done...";
+
 X509Certificate2 CreateSelfSignedCertificate()
 {
-var rsa = RSA.Create();
-var certificateRequest = new CertificateRequest("CN= localhost", rsa, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1);
-certificateRequest.CertificateExtensions.Add(
-new X509BasicConstraintsExtension(
-certificateAuthority: false,
-hasPathLengthConstraint: false,
-pathLengthConstraint: 0,
-critical: true
+    var rsa = RSA.Create();
+    var certificateRequest = new CertificateRequest("CN= localhost", rsa, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1);
+    certificateRequest.CertificateExtensions.Add(
+    new X509BasicConstraintsExtension(
+    certificateAuthority: false,
+    hasPathLengthConstraint: false,
+    pathLengthConstraint: 0,
+    critical: true
 )
 );
-certificateRequest.CertificateExtensions.Add(
-new X509KeyUsageExtension(
-keyUsages:
-X509KeyUsageFlags.DigitalSignature | X509KeyUsageFlags.KeyEncipherment |
-X509KeyUsageFlags.CrlSign | X509KeyUsageFlags.KeyCertSign,
-critical: false
+    certificateRequest.CertificateExtensions.Add(
+    new X509KeyUsageExtension(
+    keyUsages:
+    X509KeyUsageFlags.DigitalSignature | X509KeyUsageFlags.KeyEncipherment |
+    X509KeyUsageFlags.CrlSign | X509KeyUsageFlags.KeyCertSign,
+    critical: false
 )
 );
-certificateRequest.CertificateExtensions.Add(
-new X509EnhancedKeyUsageExtension(
-new OidCollection {
-new Oid("1.3.6.1.5.5.7.3.2"), // TLS Client auth
-new Oid("1.3.6.1.5.5.7.3.1") // TLS Server auth
+    certificateRequest.CertificateExtensions.Add(
+    new X509EnhancedKeyUsageExtension(
+    new OidCollection {
+    new Oid("1.3.6.1.5.5.7.3.2"), // TLS Client auth
+    new Oid("1.3.6.1.5.5.7.3.1") // TLS Server auth
 },
 false));
-certificateRequest.CertificateExtensions.Add(
-new X509SubjectKeyIdentifierExtension(
-key: certificateRequest.PublicKey,
-critical: false
+    certificateRequest.CertificateExtensions.Add(
+    new X509SubjectKeyIdentifierExtension(
+    key: certificateRequest.PublicKey,
+    critical: false
 )
 );
-var sanBuilder = new SubjectAlternativeNameBuilder();
-sanBuilder.AddDnsName("localhost");
-certificateRequest.CertificateExtensions.Add(sanBuilder.Build());
-return certificateRequest.CreateSelfSigned(DateTimeOffset.Now.AddDays(-1), DateTimeOffset.Now.AddYears(5));
-}
+    var sanBuilder = new SubjectAlternativeNameBuilder();
+    sanBuilder.AddDnsName("localhost");
+    certificateRequest.CertificateExtensions.Add(sanBuilder.Build());
+    return certificateRequest.CreateSelfSigned(DateTimeOffset.Now.AddDays(-1), DateTimeOffset.Now.AddYears(5));
+    }
+        
+
+
         }
-}
+
+
+
+    }
 		async void Button2_Click(object sender, RoutedEventArgs e){
             var filePicker = new Windows.Storage.Pickers.FileOpenPicker();
             // folderPicker.FileTypeFilter.Add("*");
