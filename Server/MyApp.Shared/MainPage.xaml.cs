@@ -41,7 +41,14 @@ if (!QuicListener.IsSupported)
 Console.WriteLine("QUIC is not supported, check for presence of libmsquic and support of TLS 1.3.");
 return;
 }
-var cert2 = CreateSelfSignedCertificate();
+
+
+
+    
+bool IsWorking = true;
+
+while(IsWorking){
+    var cert2 = CreateSelfSignedCertificate();
 var serverConnectionOptions = new QuicServerConnectionOptions
 {
 DefaultStreamErrorCode = 0x0A,
@@ -62,26 +69,27 @@ ConnectionOptionsCallback = (_, _, _) => ValueTask.FromResult(serverConnectionOp
 });
 TextBoxStatus.Text = "Connect started...";
 Console.WriteLine(listener.LocalEndPoint);
-bool IsWorking = true;
 int k = 0;
-
-
-while(IsWorking){
-    
     String EndString = null;
     await using var connection = await listener.AcceptConnectionAsync();
     await using var stream = await connection.AcceptInboundStreamAsync();
+
     Console.WriteLine("Begin connection");
 	TextBoxConnect.Text = "Client connected with " + listener.LocalEndPoint;
     // Read
-    var buffer = new byte[100];
-    await stream.ReadAsync(buffer);
+    String masaggeToString = null;
+    var buffer = new byte[4096];
+    while(await stream.ReadAsync(buffer) > 0){
+        Console.WriteLine("readed: " + buffer.Length+ " bytes");
+        masaggeToString  = masaggeToString + Encoding.UTF8.GetString(buffer, 0, buffer.Length);
+        break;
+    }
     Console.WriteLine(Encoding.UTF8.GetString(buffer, 0, buffer.Length));
-    String masaggeToString = Encoding.UTF8.GetString(buffer, 0, buffer.Length);
+    
 
     EndString = EndString + masaggeToString;
     String EndStringNew = null;
-    Console.WriteLine(EndString);
+    // Console.WriteLine(EndString);
     String nameOFFile = null;
     int is_percent = 0;
 
@@ -97,7 +105,7 @@ while(IsWorking){
             }
         }
         for(int i = 0; i < EndString.Length; i++){
-            Console.WriteLine(EndString[i]);
+            // Console.WriteLine(EndString[i]);
             EndStringNew = EndStringNew + EndString[i];
             if(EndString[i+1] == '`'){
                 i = EndString.Length;
@@ -107,10 +115,14 @@ while(IsWorking){
     }catch(Exception ee){}
         try
     {
-        StreamWriter sw = new StreamWriter(nameOFFile);
-        sw.WriteLine(EndStringNew);
+        if(nameOFFile != null){
+            StreamWriter sw = new StreamWriter(nameOFFile);
+            sw.WriteLine(EndStringNew);
+            sw.Close();
+        }
 		FileReaderText.Text = "Client sended this: "+EndStringNew;
-        sw.Close();
+        await listener.DisposeAsync();
+
     }
     catch(Exception ee)
     {
@@ -124,7 +136,6 @@ while(IsWorking){
     if(k == 10){
         IsWorking = false;
     }
-
 }
 
 X509Certificate2 CreateSelfSignedCertificate()
@@ -166,8 +177,6 @@ certificateRequest.CertificateExtensions.Add(sanBuilder.Build());
 return certificateRequest.CreateSelfSigned(DateTimeOffset.Now.AddDays(-1), DateTimeOffset.Now.AddYears(5));
 }
 Console.WriteLine("Exit");
-/*await listener.DisposeAsync();*/
-
 
 		}
 	}

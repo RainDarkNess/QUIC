@@ -36,6 +36,10 @@ namespace MyApp
 			this.InitializeComponent();
 		}
 		async void Button1_Click(object sender, RoutedEventArgs e){
+    String choose = TextType.Text;
+        if(choose != "W" && choose != "w" && choose == "F" && choose == "f"){
+            TextBoxStatus.Text = "Repet plize";
+        }else{
 if (!QuicConnection.IsSupported)
 {
 Console.WriteLine("QUIC is not supported, check for presence of libmsquic and support of TLS 1.3.");
@@ -70,7 +74,6 @@ TextBoxStatus.Text = $"Connected {connection.LocalEndPoint} —> {connection.Rem
 
     //Pass the file path and file name to the StreamReader constructor
     Console.WriteLine("Choose, File - [F] or Write to file - [W]");
-    String choose = TextType.Text;
     if(choose == "F" || choose == "f"){
         foreach(string pathString in pathOfFiles){
             Console.WriteLine(pathString);
@@ -89,11 +92,11 @@ TextBoxStatus.Text = $"Connected {connection.LocalEndPoint} —> {connection.Rem
         while (line != null)
         {
             //write the line to console window
-            Console.WriteLine(line);
+            // Console.WriteLine(line);
             //Read the next line
             line = sr.ReadLine();
 
-            AllStr = AllStr + line;
+            AllStr = AllStr + "\r" + line;
 
         }
             AllStr = AllStr + '`' + AllStr.Length + '`';
@@ -103,7 +106,7 @@ TextBoxStatus.Text = $"Connected {connection.LocalEndPoint} —> {connection.Rem
             // Read
             var buffer = new byte[4096];
             await stream.ReadAsync(buffer);
-            Console.WriteLine(Encoding.UTF8.GetString(buffer, 0, buffer.Length));
+            // Console.WriteLine(Encoding.UTF8.GetString(buffer, 0, buffer.Length));
 
         //close the file
         sr.Close();
@@ -127,9 +130,7 @@ TextBoxStatus.Text = $"Connected {connection.LocalEndPoint} —> {connection.Rem
         // Read
         var buffer = new byte[4096];
         await stream.ReadAsync(buffer);
-        Console.WriteLine(Encoding.UTF8.GetString(buffer, 0, buffer.Length));
-}else{
-    TextBoxStatus.Text = "Repet plize";
+        // Console.WriteLine(Encoding.UTF8.GetString(buffer, 0, buffer.Length));
 }
         StatusOfSend.Text = StatusOfSend.Text + " done...";
 X509Certificate2 CreateSelfSignedCertificate()
@@ -170,6 +171,7 @@ sanBuilder.AddDnsName("localhost");
 certificateRequest.CertificateExtensions.Add(sanBuilder.Build());
 return certificateRequest.CreateSelfSigned(DateTimeOffset.Now.AddDays(-1), DateTimeOffset.Now.AddYears(5));
 }
+        }
 }
 		async void Button2_Click(object sender, RoutedEventArgs e){
             var filePicker = new Windows.Storage.Pickers.FileOpenPicker();
