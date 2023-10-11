@@ -1,0 +1,19 @@
+{
+  "solution": {
+    "path": "MyApp.sln",
+    "projects": [
+		"MyApp.Shared\\MyApp.Shared.shproj",
+
+
+		"MyApp.iOS\\MyApp.iOS.csproj",
+
+
+		"MyApp.Wasm\\MyApp.Wasm.csproj",
+
+
+		"MyApp.Skia.Gtk\\MyApp.Skia.Gtk.csproj",
+
+		"MyApp.Skia.Linux.FrameBuffer\\MyApp.Skia.Linux.FrameBuffer.csproj",
+    ]
+  }
+}

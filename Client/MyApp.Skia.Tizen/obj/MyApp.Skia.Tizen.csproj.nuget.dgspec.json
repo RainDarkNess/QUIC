@@ -1,0 +1,75 @@
+{
+  "format": 1,
+  "restore": {
+    "/home/rain/Desktop/QUIC/GU/MyApp/MyApp.Skia.Tizen/MyApp.Skia.Tizen.csproj": {}
+  },
+  "projects": {
+    "/home/rain/Desktop/QUIC/GU/MyApp/MyApp.Skia.Tizen/MyApp.Skia.Tizen.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "/home/rain/Desktop/QUIC/GU/MyApp/MyApp.Skia.Tizen/MyApp.Skia.Tizen.csproj",
+        "projectName": "MyApp.Skia.Tizen",
+        "projectPath": "/home/rain/Desktop/QUIC/GU/MyApp/MyApp.Skia.Tizen/MyApp.Skia.Tizen.csproj",
+        "packagesPath": "/root/.nuget/packages/",
+        "outputPath": "/home/rain/Desktop/QUIC/GU/MyApp/MyApp.Skia.Tizen/obj/",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "/root/.nuget/NuGet/NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "tizen50"
+        ],
+        "sources": {
+          "/usr/share/dotnet/library-packs": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "tizen50": {
+            "targetAlias": "tizen50",
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "tizen50": {
+          "targetAlias": "tizen50",
+          "dependencies": {
+            "Microsoft.Extensions.Logging.Console": {
+              "target": "Package",
+              "version": "[5.0.0, )"
+            },
+            "SkiaSharp.Views": {
+              "target": "Package",
+              "version": "[2.88.3, )"
+            },
+            "Tizen.NET": {
+              "include": "Compile, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[8.0.0.15631, )",
+              "autoReferenced": true
+            },
+            "Uno.UI.Adapter.Microsoft.Extensions.Logging": {
+              "target": "Package",
+              "version": "[4.10.13, )"
+            },
+            "Uno.UI.RemoteControl": {
+              "target": "Package",
+              "version": "[4.10.13, )"
+            },
+            "Uno.UI.Skia.Tizen": {
+              "target": "Package",
+              "version": "[4.10.13, )"
+            }
+          },
+          "runtimeIdentifierGraphPath": "/usr/share/dotnet/sdk/7.0.401/RuntimeIdentifierGraph.json"
+        }
+      }
+    }
+  }
+}

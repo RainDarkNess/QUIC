@@ -1,0 +1,84 @@
+{
+  "format": 1,
+  "restore": {
+    "/home/rain/Desktop/TESTAPP/Client/MyApp.Skia.Gtk/MyApp.Skia.Gtk.csproj": {}
+  },
+  "projects": {
+    "/home/rain/Desktop/TESTAPP/Client/MyApp.Skia.Gtk/MyApp.Skia.Gtk.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "/home/rain/Desktop/TESTAPP/Client/MyApp.Skia.Gtk/MyApp.Skia.Gtk.csproj",
+        "projectName": "MyApp.Skia.Gtk",
+        "projectPath": "/home/rain/Desktop/TESTAPP/Client/MyApp.Skia.Gtk/MyApp.Skia.Gtk.csproj",
+        "packagesPath": "/root/.nuget/packages/",
+        "outputPath": "/home/rain/Desktop/TESTAPP/Client/MyApp.Skia.Gtk/obj/",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "/root/.nuget/NuGet/NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net7.0"
+        ],
+        "sources": {
+          "/usr/share/dotnet/library-packs": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net7.0": {
+            "targetAlias": "net7.0",
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "net7.0": {
+          "targetAlias": "net7.0",
+          "dependencies": {
+            "Microsoft.Extensions.Logging.Console": {
+              "target": "Package",
+              "version": "[5.0.0, )"
+            },
+            "System.Threading.Tasks.Extensions": {
+              "target": "Package",
+              "version": "[4.5.4, )"
+            },
+            "Uno.UI.Adapter.Microsoft.Extensions.Logging": {
+              "target": "Package",
+              "version": "[4.10.13, )"
+            },
+            "Uno.UI.RemoteControl": {
+              "target": "Package",
+              "version": "[4.10.13, )"
+            },
+            "Uno.UI.Skia.Gtk": {
+              "target": "Package",
+              "version": "[4.10.13, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "/usr/share/dotnet/sdk/7.0.401/RuntimeIdentifierGraph.json"
+        }
+      }
+    }
+  }
+}
