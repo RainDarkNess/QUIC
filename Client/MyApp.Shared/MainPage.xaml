@@ -16,7 +16,8 @@
 <TextBlock x:Name="StatusOfSend" Text="Status..." Width="1900" Height="15" Margin="20,50,20,20" FontSize="11"/>
 <TextBox x:Name="TextType" Text="Read in here type of sendType (W to write text of F to Send text file)" Width="1900" Height="15" Margin="20,30,20,20" FontSize="11"/>
 <TextBox x:Name="TextPath" Text="Write Text of path of file." Width="1900" Height="15" Margin="20,40,20,20" FontSize="11"/>
-
+<TextBox x:Name="IpText" Text="ip." Width="1900" Height="15" Margin="20,40,20,20" FontSize="11"/>
+<TextBox x:Name="PortText" Text="port." Width="1900" Height="15" Margin="20,40,20,20" FontSize="11"/>
     <Button Content="Elevation 0"
             x:Name="Button1"
             Style="{StaticResource MaterialElevatedButtonStyle}"

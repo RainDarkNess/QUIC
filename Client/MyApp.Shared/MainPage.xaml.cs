@@ -36,7 +36,8 @@ namespace MyApp
 			this.InitializeComponent();
 		}
 		async void Button1_Click(object sender, RoutedEventArgs e){
-
+            String ipTxt = IpText.Text;
+            String port = PortText.Text;
         String choose = TextType.Text;
 
         if(choose != "W" && choose != "w" && choose == "F" && choose == "f"){
@@ -52,7 +53,7 @@ namespace MyApp
         }
 
     var cert2 = CreateSelfSignedCertificate();
-    var endPoint = IPEndPoint.Parse("127.0.0.1:8081");
+    var endPoint = IPEndPoint.Parse(ipTxt+port);
     Console.WriteLine(endPoint);
 
 var clientConnectionOptions = new QuicClientConnectionOptions{
@@ -69,7 +70,7 @@ var clientConnectionOptions = new QuicClientConnectionOptions{
         new SslApplicationProtocol("test")
         },
         //192.168.0.107
-        TargetHost = "127.0.0.1",
+        TargetHost =  ipTxt,
         RemoteCertificateValidationCallback = (sender, chain, certificate, errors) => true
         }
     };
@@ -178,7 +179,7 @@ false));
     }
 
     var cert2 = CreateSelfSignedCertificate();
-    var endPoint = IPEndPoint.Parse("127.0.0.1:8081");
+    var endPoint = IPEndPoint.Parse(ipTxt+port);
     Console.WriteLine(endPoint);
 
     var clientConnectionOptions = new QuicClientConnectionOptions{
@@ -195,7 +196,7 @@ false));
         new SslApplicationProtocol("test")
         },
         //192.168.0.107
-        TargetHost = "127.0.0.1",
+        TargetHost = ipTxt,
         RemoteCertificateValidationCallback = (sender, chain, certificate, errors) => true
         }
     };
