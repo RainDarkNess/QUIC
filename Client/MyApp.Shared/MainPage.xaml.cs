@@ -40,12 +40,13 @@ namespace MyApp
             String port = PortText.Text;
         String choose = TextType.Text;
 
-        if(choose != "W" && choose != "w" && choose == "F" && choose == "f"){
+        if(choose != "W" && choose != "w" && choose != "F" && choose != "f"){
             TextBoxStatus.Text = "Repet plize";
         }
         else if(choose == "F" || choose == "f"){
             foreach(string pathString in pathOfFiles){
-
+            	Console.WriteLine("picked file");
+		Console.WriteLine(pathString);
         if (!QuicConnection.IsSupported)
         {
             Console.WriteLine("QUIC is not supported, check for presence of libmsquic and support of TLS 1.3.");
@@ -74,9 +75,10 @@ var clientConnectionOptions = new QuicClientConnectionOptions{
         RemoteCertificateValidationCallback = (sender, chain, certificate, errors) => true
         }
     };
-    var connection = await QuicConnection.ConnectAsync(clientConnectionOptions);
-    Console.WriteLine($"Connected {connection.LocalEndPoint} —> {connection.RemoteEndPoint}");
-    TextBoxStatus.Text = $"Connected {connection.LocalEndPoint} —> {connection.RemoteEndPoint}";
+
+    //var connection = await QuicConnection.ConnectAsync(clientConnectionOptions);
+    //Console.WriteLine($"Connected {connection.LocalEndPoint} —> {connection.RemoteEndPoint}");
+    //TextBoxStatus.Text = $"Connected {connection.LocalEndPoint} —> {connection.RemoteEndPoint}";
 
     //Pass the file path and file name to the StreamReader constructor
     Console.WriteLine("Choose, File - [F] or Write to file - [W]");
@@ -87,33 +89,18 @@ var clientConnectionOptions = new QuicClientConnectionOptions{
         string name = name_arr[name_arr.Length-1];
         Console.WriteLine("Entering...");
         String path = pathString;
-        StreamReader sr = new StreamReader(path);
-        //Read the first line of text
-        String line = sr.ReadLine();
+
+        String allTextLocal = File.ReadAllText(path);
+      
         String AllStr = "%"+name+"%";
-        AllStr = AllStr + line;
-        //Continue to read until you reach end of file
-        while (line != null)
-        {
-            //write the line to console window
-            // Console.WriteLine(line);
-            //Read the next line
-            line = sr.ReadLine();
 
-            AllStr = AllStr + "\r" + line;
-
-        }
-            AllStr = AllStr + '`' + AllStr.Length + '`';
-            await using var stream = await connection.OpenOutboundStreamAsync(QuicStreamType.Bidirectional);
-            // Write
-            await stream.WriteAsync(Encoding.UTF8.GetBytes(AllStr));
-            // Read
-            var buffer = new byte[4096];
-            await stream.ReadAsync(buffer);
-            // Console.WriteLine(Encoding.UTF8.GetString(buffer, 0, buffer.Length));
-
-        //close the file
-        sr.Close();
+        AllStr = AllStr + allTextLocal;
+        Console.WriteLine(AllStr.Length);
+    	var connection = await QuicConnection.ConnectAsync(clientConnectionOptions);  
+    	Console.WriteLine($"Connected {connection.LocalEndPoint} —> {connection.RemoteEndPoint}");
+    	TextBoxStatus.Text = $"Connected {connection.LocalEndPoint} —> {connection.RemoteEndPoint}";
+        await using var stream = await connection.OpenOutboundStreamAsync(QuicStreamType.Bidirectional);
+        await stream.WriteAsync(Encoding.UTF8.GetBytes(AllStr));
     }
     catch(Exception ee)
     {
@@ -274,11 +261,12 @@ false));
             var file = await filePicker.PickSingleFileAsync();
             Console.WriteLine(file.Name);
             // TextPath.Text = TextPath.Text+file.Path+file.Name+'~';
-            listwiew1.Items.Add(file.Name);
+            //listwiew1.Items.Add(file.Name);
             pathOfFiles.Add(file.Path);
             foreach(string a in pathOfFiles){
                 Console.WriteLine(a);
             }
+
         }
 		async void Button3_Click(object sender, RoutedEventArgs e){
             

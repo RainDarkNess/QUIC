@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "1+qsqCN/99ixFG7LuuFD+8VKND3ZTnIDi8QJdKa9RufKKhybenYL1qAMDOsYpIFSd29EkkcjkcbD4nnaUxa6Ww==",
+  "dgSpecHash": "YzKZS1azjU/uV3mwxlvAAGByzagHptzrba9WZaLJwHt+zlJuezI2r1qOMgBiskwLC2QyVL1PW3QnffSgj302jw==",
   "success": true,
-  "projectFilePath": "/home/rain/Desktop/TESTAPP/Client/MyApp.Skia.Gtk/MyApp.Skia.Gtk.csproj",
+  "projectFilePath": "/home/rain/QUIC_old/QUIC/Client/MyApp.Skia.Gtk/MyApp.Skia.Gtk.csproj",
   "expectedPackageFiles": [
     "/root/.nuget/packages/atksharp/3.24.24.38/atksharp.3.24.24.38.nupkg.sha512",
     "/root/.nuget/packages/cairosharp/3.24.24.38/cairosharp.3.24.24.38.nupkg.sha512",

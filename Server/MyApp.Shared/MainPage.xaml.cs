@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -32,10 +32,22 @@ namespace MyApp
 		public MainPage()
 		{
 			this.InitializeComponent();
+			string hostName = Dns.GetHostName();  
+    			Console.WriteLine(hostName);   
+      
+    			// Get the IP from GetHostByName method of dns class. 
+    			string IP = Dns.GetHostByName(hostName).AddressList[1].ToString(); 
+     			Console.WriteLine("IP Address is : " + IP);  
+			IpText.Text = IP+':';
+			PortText.Text = "8081";
 		}
 		async void Button1_Click(object sender, RoutedEventArgs e){
+		 
+     
 			TextBox1.Text = "Connect starting...";
-
+            String IpStr = IpText.Text;
+            String PortStr = PortText.Text;
+            String AllIpPort = IpStr+PortStr;
 if (!QuicListener.IsSupported)
 {
 Console.WriteLine("QUIC is not supported, check for presence of libmsquic and support of TLS 1.3.");
@@ -60,10 +72,11 @@ RemoteCertificateValidationCallback = (sender, chain, certificate, errors) => tr
 };
 var listener = await QuicListener.ListenAsync(new QuicListenerOptions
 {
-ListenEndPoint = IPEndPoint.Parse("192.168.0.108:8081"),
+ListenEndPoint = IPEndPoint.Parse(AllIpPort),
 ApplicationProtocols = new List<SslApplicationProtocol>() { new SslApplicationProtocol("test") },
 ConnectionOptionsCallback = (_, _, _) => ValueTask.FromResult(serverConnectionOptions)
-});
+}); 
+     
 TextBoxStatus.Text = "Connect started...";
 Console.WriteLine(listener.LocalEndPoint);
 int k = 0;
@@ -75,49 +88,66 @@ int k = 0;
 	TextBoxConnect.Text = "Client connected with " + listener.LocalEndPoint;
     // Read
     String masaggeToString = null;
-    var buffer = new byte[4096];
-    while(await stream.ReadAsync(buffer) > 0){
+    var buffer = new byte[4060];
+    while(await stream.ReadAsync(buffer) > 1){
         Console.WriteLine("readed: " + buffer.Length+ " bytes");
         ConsoleText.Text = ConsoleText.Text + "\r readed: " + buffer.Length+ " bytes";
         masaggeToString  = masaggeToString + Encoding.UTF8.GetString(buffer, 0, buffer.Length);
-        break;
+        //Console.WriteLine(masaggeToString);
+        //break;
     }
-    Console.WriteLine(Encoding.UTF8.GetString(buffer, 0, buffer.Length));
-    
-
+    Console.WriteLine("readed buffer");
+	Console.WriteLine(masaggeToString.Length);
+	Console.WriteLine("readed local file");
     EndString = EndString + masaggeToString;
+    Console.WriteLine(EndString.Length);
     String EndStringNew = null;
     // Console.WriteLine(EndString);
     String nameOFFile = null;
     int is_percent = 0;
-
+	int removeOne = 0;
+	bool isChecked = false;
+	int removeTwo = 0;
     try{
         for(int i = 0; i < EndString.Length; i++){
             if(EndString[i] == '%'){
                 is_percent++;
+                if(!isChecked){
+                	removeOne = i;
+                	isChecked = true;
+                }
+                
+                //i = EndString.Length;
+                //break;
             }
-            if(is_percent == 1 & EndString[i] != '%'){
+            else if(is_percent == 1 & EndString[i] != '%'){
                 nameOFFile = nameOFFile + EndString[i];
-            }else if(is_percent == 2){
-                i = EndString.Length;
-            }
-        }
-        for(int i = 0; i < EndString.Length; i++){
-            // Console.WriteLine(EndString[i]);
-            EndStringNew = EndStringNew + EndString[i];
-            if(EndString[i+1] == '`'){
-                i = EndString.Length;
+		removeTwo = i;
+                Console.WriteLine(nameOFFile);
+            }else{
+		removeTwo = i;
+		Console.WriteLine("substring");Console.WriteLine(removeOne);Console.WriteLine(removeTwo);
+		EndString = EndString.Remove(removeOne, removeTwo);
+        	i = EndString.Length;
+                break;
             }
 
         }
     }catch(Exception ee){}
         try
     {
-        if(nameOFFile != null){
+        if(nameOFFile != null & k == 0){
             StreamWriter sw = new StreamWriter(nameOFFile);
-            sw.WriteLine(EndStringNew);
+            //sw.WriteLine(EndStringNew);
+            sw.WriteLine(EndString);
             sw.Close();
             ReadedFiles.Text = ReadedFiles.Text + "\r"+nameOFFile;
+        }else{
+		StreamWriter sw = new StreamWriter("test.txt");
+            //sw.WriteLine(EndStringNew);
+            sw.WriteLine(EndString);
+            sw.Close();
+            ReadedFiles.Text = ReadedFiles.Text + "\r"+"test.txt";
         }
 		FileReaderText.Text = "Client sended this: "+EndStringNew;
         ReadedText.Text = ReadedText.Text+" \r"+EndStringNew;
@@ -133,7 +163,7 @@ int k = 0;
         Console.WriteLine("Executing finally block.");
     }
     k++;
-    if(k == 10){
+    if(k == 1){
         IsWorking = false;
     }
 }
@@ -185,3 +215,4 @@ Console.WriteLine("Exit");
         }
 	}
 }
+
