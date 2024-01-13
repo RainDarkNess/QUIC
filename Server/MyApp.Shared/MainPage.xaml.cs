@@ -88,16 +88,51 @@ int k = 0;
 	TextBoxConnect.Text = "Client connected with " + listener.LocalEndPoint;
     // Read
     String masaggeToString = null;
-    var buffer = new byte[4060];
-    while(await stream.ReadAsync(buffer) > 1){
-        Console.WriteLine("readed: " + buffer.Length+ " bytes");
-        ConsoleText.Text = ConsoleText.Text + "\r readed: " + buffer.Length+ " bytes";
-        masaggeToString  = masaggeToString + Encoding.UTF8.GetString(buffer, 0, buffer.Length);
+    var buffer = new byte[16024];
+	FileStream sw = new FileStream("test1.txt", FileMode.Create);
+            //sw.WriteLine(EndStringNew);
+           //sw.WriteLine(EndString);
+           int bufferCount = 0;
+           int memorySize = 0;
+           byte[] tmpBuffer = new byte[0];
+    while(await stream.ReadAsync(buffer) > 0){
+        //Console.WriteLine("readed: " + buffer.Length+ " bytes");
+        //masaggeToString  = masaggeToString + Encoding.UTF8.GetString(buffer, 0, buffer.Length);
+        bufferCount++;
+        Console.WriteLine("Buffer #"+bufferCount);
+        //Console.WriteLine(Encoding.UTF8.GetString(buffer, 0, buffer.Length));
+	int tmpIntVal = 0;
+        
+        for(int l = 0; l < buffer.Length; l++){
+        //	Console.WriteLine(buffer[l]);
+
+          if((buffer[l] == 115) && (buffer[l+1] == 116) && (buffer[l+2] == 111) && (buffer[l+3] == 112) && (buffer[l+4] == 36) && (buffer[l+5] == 36)){
+	  break;
+         }
+         else{
+          tmpIntVal++;
+	  tmpBuffer = new byte[tmpIntVal];
+         }
+        }
+        Console.WriteLine("new buffer length "+tmpBuffer.Length);
+   
+        for(int y = 0; y < tmpBuffer.Length; y++){
+        	tmpBuffer[y] = buffer[y];
+        }
+	memorySize+=tmpBuffer.Length;
+	//sw.Write(buffer, 0, buffer.Length);
+        sw.Write(tmpBuffer, 0, tmpBuffer.Length);
+        //for(int ii = 0; ii < buffer.Length; ii++){
+        //	masaggeToString  = masaggeToString + buffer[ii];
+        //}
+        
         //Console.WriteLine(masaggeToString);
         //break;
     }
+    //Console.WriteLine(masaggeToString);
+    sw.Close();
     Console.WriteLine("readed buffer");
-	Console.WriteLine(masaggeToString.Length);
+	Console.WriteLine(memorySize);
 	Console.WriteLine("readed local file");
     EndString = EndString + masaggeToString;
     Console.WriteLine(EndString.Length);
@@ -109,7 +144,8 @@ int k = 0;
 	bool isChecked = false;
 	int removeTwo = 0;
     try{
-        for(int i = 0; i < EndString.Length; i++){
+        //for(int i = 0; i < EndString.Length; i++){
+        for(int i = 0; i < 2; i++){
             if(EndString[i] == '%'){
                 is_percent++;
                 if(!isChecked){
@@ -126,7 +162,9 @@ int k = 0;
                 Console.WriteLine(nameOFFile);
             }else{
 		removeTwo = i;
-		Console.WriteLine("substring");Console.WriteLine(removeOne);Console.WriteLine(removeTwo);
+		Console.WriteLine("substring");
+		Console.WriteLine(removeOne);
+		Console.WriteLine(removeTwo);
 		EndString = EndString.Remove(removeOne, removeTwo);
         	i = EndString.Length;
                 break;
@@ -137,16 +175,13 @@ int k = 0;
         try
     {
         if(nameOFFile != null & k == 0){
-            StreamWriter sw = new StreamWriter(nameOFFile);
+            //StreamWriter sw = new StreamWriter(nameOFFile);
             //sw.WriteLine(EndStringNew);
-            sw.WriteLine(EndString);
-            sw.Close();
-            ReadedFiles.Text = ReadedFiles.Text + "\r"+nameOFFile;
+            //sw.WriteLine(EndString);
+            //sw.Close();
+            //ReadedFiles.Text = ReadedFiles.Text + "\r"+nameOFFile;
         }else{
-		StreamWriter sw = new StreamWriter("test.txt");
-            //sw.WriteLine(EndStringNew);
-            sw.WriteLine(EndString);
-            sw.Close();
+            //sw.Close();
             ReadedFiles.Text = ReadedFiles.Text + "\r"+"test.txt";
         }
 		FileReaderText.Text = "Client sended this: "+EndStringNew;

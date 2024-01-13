@@ -90,17 +90,32 @@ var clientConnectionOptions = new QuicClientConnectionOptions{
         Console.WriteLine("Entering...");
         String path = pathString;
 
-        String allTextLocal = File.ReadAllText(path);
-      
-        String AllStr = "%"+name+"%";
+      //  String allTextLocal = File.ReadAllText(path);
+      	byte[] AllStr = File.ReadAllBytes(path);  
+      	//AllStr.Join("", AllStr);
+        //String AllStr = "%"+name+"%";
 
-        AllStr = AllStr + allTextLocal;
+        //AllStr = AllStr + allTextLocal;
         Console.WriteLine(AllStr.Length);
     	var connection = await QuicConnection.ConnectAsync(clientConnectionOptions);  
     	Console.WriteLine($"Connected {connection.LocalEndPoint} —> {connection.RemoteEndPoint}");
     	TextBoxStatus.Text = $"Connected {connection.LocalEndPoint} —> {connection.RemoteEndPoint}";
         await using var stream = await connection.OpenOutboundStreamAsync(QuicStreamType.Bidirectional);
-        await stream.WriteAsync(Encoding.UTF8.GetBytes(AllStr));
+        char[] myChars = new char[] {'s', 't', 'o', 'p', '$', '$'};
+        var AllBytes = new byte[AllStr.Length+6];
+	for(int t = 0; t < AllStr.Length; t++){
+		AllBytes[t] = AllStr[t];
+		//Console.WriteLine("new bytes "+AllBytes[t]);
+	}
+	//Console.WriteLine("new len "+AllBytes.Length);
+	for(int l = 0; l < Encoding.UTF8.GetBytes(myChars).Length; l++){
+	//Console.WriteLine(Encoding.UTF8.GetBytes(myChars)[l]);
+	
+	AllBytes[AllStr.Length+l] = Encoding.UTF8.GetBytes(myChars)[l];
+	}
+	
+	
+        await stream.WriteAsync(AllBytes);
     }
     catch(Exception ee)
     {
