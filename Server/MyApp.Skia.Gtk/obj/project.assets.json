@@ -5418,11 +5418,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/home/rain/QUIC_old/QUIC/Server/MyApp.Skia.Gtk/MyApp.Skia.Gtk.csproj",
+      "projectUniqueName": "/home/rain/Desktop/test/QUIC/Server/MyApp.Skia.Gtk/MyApp.Skia.Gtk.csproj",
       "projectName": "MyApp.Skia.Gtk",
-      "projectPath": "/home/rain/QUIC_old/QUIC/Server/MyApp.Skia.Gtk/MyApp.Skia.Gtk.csproj",
+      "projectPath": "/home/rain/Desktop/test/QUIC/Server/MyApp.Skia.Gtk/MyApp.Skia.Gtk.csproj",
       "packagesPath": "/root/.nuget/packages/",
-      "outputPath": "/home/rain/QUIC_old/QUIC/Server/MyApp.Skia.Gtk/obj/",
+      "outputPath": "/home/rain/Desktop/test/QUIC/Server/MyApp.Skia.Gtk/obj/",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "/root/.nuget/NuGet/NuGet.Config"
@@ -5431,6 +5431,7 @@
         "net7.0"
       ],
       "sources": {
+        "/usr/share/dotnet/library-packs": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
@@ -5486,7 +5487,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "/usr/share/dotnet/sdk/7.0.404/RuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "/usr/share/dotnet/sdk/7.0.401/RuntimeIdentifierGraph.json"
       }
     }
   }

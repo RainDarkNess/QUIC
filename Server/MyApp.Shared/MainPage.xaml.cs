@@ -77,7 +77,7 @@ ApplicationProtocols = new List<SslApplicationProtocol>() { new SslApplicationPr
 ConnectionOptionsCallback = (_, _, _) => ValueTask.FromResult(serverConnectionOptions)
 }); 
      
-TextBoxStatus.Text = "Connect started...";
+TextBoxConnect.Text = "Connect started...";
 Console.WriteLine(listener.LocalEndPoint);
 int k = 0;
     String EndString = null;
@@ -88,104 +88,118 @@ int k = 0;
 	TextBoxConnect.Text = "Client connected with " + listener.LocalEndPoint;
     // Read
     String masaggeToString = null;
-    var buffer = new byte[16024];
-	FileStream sw = new FileStream("test1.txt", FileMode.Create);
-            //sw.WriteLine(EndStringNew);
-           //sw.WriteLine(EndString);
+    var buffer = new byte[1024];
+    try{
+        int BufferSizeCons = Int32.Parse(BufferSize.Text); 
+        buffer = new byte[BufferSizeCons];
+    }catch{}
+	FileStream sw = new FileStream("test1.xcf", FileMode.Create);
+           FileText.Text = " ";
            int bufferCount = 0;
            int memorySize = 0;
+           int indexOfConsoleLog = 0;
+           ConsoleText.Text = " ";
            byte[] tmpBuffer = new byte[0];
     while(await stream.ReadAsync(buffer) > 0){
-        //Console.WriteLine("readed: " + buffer.Length+ " bytes");
-        //masaggeToString  = masaggeToString + Encoding.UTF8.GetString(buffer, 0, buffer.Length);
         bufferCount++;
         Console.WriteLine("Buffer #"+bufferCount);
-        //Console.WriteLine(Encoding.UTF8.GetString(buffer, 0, buffer.Length));
 	int tmpIntVal = 0;
         
-        for(int l = 0; l < buffer.Length; l++){
+    for(int l = 0; l < buffer.Length; l++){
         //	Console.WriteLine(buffer[l]);
 
-          if((buffer[l] == 115) && (buffer[l+1] == 116) && (buffer[l+2] == 111) && (buffer[l+3] == 112) && (buffer[l+4] == 36) && (buffer[l+5] == 36)){
-	  break;
-         }
-         else{
-          tmpIntVal++;
-	  tmpBuffer = new byte[tmpIntVal];
-         }
-        }
-        Console.WriteLine("new buffer length "+tmpBuffer.Length);
-   
-        for(int y = 0; y < tmpBuffer.Length; y++){
-        	tmpBuffer[y] = buffer[y];
-        }
+    if((buffer[l] == 115) && (buffer[l+1] == 116) && (buffer[l+2] == 111) && (buffer[l+3] == 112) && (buffer[l+4] == 36) && (buffer[l+5] == 36)){
+	    break;
+    }
+    else{
+        tmpIntVal++;
+	    tmpBuffer = new byte[tmpIntVal];
+    }
+    }
+    Console.WriteLine("new buffer length "+tmpBuffer.Length);
+    if(indexOfConsoleLog < 5){
+        ConsoleText.Text += "new buffer length: "+tmpBuffer.Length+'\n';
+    }else{
+        ConsoleText.Text = " ";
+        indexOfConsoleLog = 0;
+    }
+    indexOfConsoleLog += 1;
+    for(int y = 0; y < tmpBuffer.Length; y++){
+     	tmpBuffer[y] = buffer[y];
+    }
+    // FileReaderText.Text = "Client sended this: "+EndStringNew;
+    ReadedText.Text = Encoding.UTF8.GetString(buffer, 0, buffer.Length);
+    // System.Text.Encoding.UTF8.GetString(byteArray, 0, 42);
+
+
 	memorySize+=tmpBuffer.Length;
 	//sw.Write(buffer, 0, buffer.Length);
-        sw.Write(tmpBuffer, 0, tmpBuffer.Length);
-        //for(int ii = 0; ii < buffer.Length; ii++){
-        //	masaggeToString  = masaggeToString + buffer[ii];
-        //}
+    sw.Write(tmpBuffer, 0, tmpBuffer.Length);
+    //for(int ii = 0; ii < buffer.Length; ii++){
+    //	masaggeToString  = masaggeToString + buffer[ii];
+    //}
         
-        //Console.WriteLine(masaggeToString);
-        //break;
+       //Console.WriteLine(masaggeToString);
+    //break;
     }
     //Console.WriteLine(masaggeToString);
     sw.Close();
     Console.WriteLine("readed buffer");
 	Console.WriteLine(memorySize);
+    FileText.Text = memorySize + " bytes";
 	Console.WriteLine("readed local file");
     EndString = EndString + masaggeToString;
     Console.WriteLine(EndString.Length);
-    String EndStringNew = null;
-    // Console.WriteLine(EndString);
-    String nameOFFile = null;
-    int is_percent = 0;
-	int removeOne = 0;
-	bool isChecked = false;
-	int removeTwo = 0;
+    // String EndStringNew = null;
+    // // Console.WriteLine(EndString);
+    // String nameOFFile = null;
+    // int is_percent = 0;
+	// int removeOne = 0;
+	// bool isChecked = false;
+	// int removeTwo = 0;
     try{
         //for(int i = 0; i < EndString.Length; i++){
-        for(int i = 0; i < 2; i++){
-            if(EndString[i] == '%'){
-                is_percent++;
-                if(!isChecked){
-                	removeOne = i;
-                	isChecked = true;
-                }
+        // for(int i = 0; i < 2; i++){
+        //     if(EndString[i] == '%'){
+        //         is_percent++;
+        //         if(!isChecked){
+        //         	removeOne = i;
+        //         	isChecked = true;
+        //         }
                 
-                //i = EndString.Length;
-                //break;
-            }
-            else if(is_percent == 1 & EndString[i] != '%'){
-                nameOFFile = nameOFFile + EndString[i];
-		removeTwo = i;
-                Console.WriteLine(nameOFFile);
-            }else{
-		removeTwo = i;
-		Console.WriteLine("substring");
-		Console.WriteLine(removeOne);
-		Console.WriteLine(removeTwo);
-		EndString = EndString.Remove(removeOne, removeTwo);
-        	i = EndString.Length;
-                break;
-            }
+        //         //i = EndString.Length;
+        //         //break;
+        //     }
+        //     else if(is_percent == 1 & EndString[i] != '%'){
+        //         nameOFFile = nameOFFile + EndString[i];
+		// removeTwo = i;
+        //         Console.WriteLine(nameOFFile);
+        //     }else{
+		// removeTwo = i;
+		// Console.WriteLine("substring");
+		// Console.WriteLine(removeOne);
+		// Console.WriteLine(removeTwo);
+		// EndString = EndString.Remove(removeOne, removeTwo);
+        // 	i = EndString.Length;
+        //         break;
+        //     }
 
-        }
+        // }
     }catch(Exception ee){}
         try
     {
-        if(nameOFFile != null & k == 0){
-            //StreamWriter sw = new StreamWriter(nameOFFile);
-            //sw.WriteLine(EndStringNew);
-            //sw.WriteLine(EndString);
-            //sw.Close();
-            //ReadedFiles.Text = ReadedFiles.Text + "\r"+nameOFFile;
-        }else{
-            //sw.Close();
-            ReadedFiles.Text = ReadedFiles.Text + "\r"+"test.txt";
-        }
-		FileReaderText.Text = "Client sended this: "+EndStringNew;
-        ReadedText.Text = ReadedText.Text+" \r"+EndStringNew;
+        // if(nameOFFile != null & k == 0){
+        //     //StreamWriter sw = new StreamWriter(nameOFFile);
+        //     //sw.WriteLine(EndStringNew);
+        //     //sw.WriteLine(EndString);
+        //     //sw.Close();
+        //     //ReadedFiles.Text = ReadedFiles.Text + "\r"+nameOFFile;
+        // }else{
+        //     //sw.Close();
+        //     ReadedFiles.Text = ReadedFiles.Text + "\r"+"test.txt";
+        // }
+		// FileReaderText.Text = "Client sended this: "+EndStringNew;
+        // ReadedText.Text = ReadedText.Text+" \r"+EndStringNew;
         await listener.DisposeAsync();
 
     }

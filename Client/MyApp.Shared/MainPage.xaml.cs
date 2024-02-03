@@ -44,9 +44,9 @@ namespace MyApp
             TextBoxStatus.Text = "Repet plize";
         }
         else if(choose == "F" || choose == "f"){
-            foreach(string pathString in pathOfFiles){
+// foreach(string pathString in pathOfFiles){
             	Console.WriteLine("picked file");
-		Console.WriteLine(pathString);
+		// Console.WriteLine(pathString);
         if (!QuicConnection.IsSupported)
         {
             Console.WriteLine("QUIC is not supported, check for presence of libmsquic and support of TLS 1.3.");
@@ -82,13 +82,14 @@ var clientConnectionOptions = new QuicClientConnectionOptions{
 
     //Pass the file path and file name to the StreamReader constructor
     Console.WriteLine("Choose, File - [F] or Write to file - [W]");
-        Console.WriteLine(pathString);
+        // Console.WriteLine(pathString);
     try
     {
-        string[] name_arr = pathString.Split('/');
-        string name = name_arr[name_arr.Length-1];
+        // string[] name_arr = pathString.Split('/');
+        // string name = name_arr[name_arr.Length-1];
         Console.WriteLine("Entering...");
-        String path = pathString;
+        // String path = pathString;
+        String path = TextPath.Text;
 
       //  String allTextLocal = File.ReadAllText(path);
       	byte[] AllStr = File.ReadAllBytes(path);  
@@ -165,7 +166,7 @@ false));
     certificateRequest.CertificateExtensions.Add(sanBuilder.Build());
     return certificateRequest.CreateSelfSigned(DateTimeOffset.Now.AddDays(-1), DateTimeOffset.Now.AddYears(5));
     }
-        }
+// }
         }
 
 
@@ -217,6 +218,11 @@ false));
         await stream.WriteAsync(Encoding.UTF8.GetBytes(WriteString+'`'));
         // Read
         var buffer = new byte[4096];
+        try{
+            int BlockSizeInt = Int32.Parse(BlockSize.Text);
+            buffer = new byte[BlockSizeInt];
+        }catch{
+        }
         await stream.ReadAsync(buffer);
         // Console.WriteLine(Encoding.UTF8.GetString(buffer, 0, buffer.Length));
         StatusOfSend.Text = StatusOfSend.Text + " done...";
@@ -278,6 +284,7 @@ false));
             // TextPath.Text = TextPath.Text+file.Path+file.Name+'~';
             //listwiew1.Items.Add(file.Name);
             pathOfFiles.Add(file.Path);
+            Console.WriteLine(file.Path);
             foreach(string a in pathOfFiles){
                 Console.WriteLine(a);
             }
