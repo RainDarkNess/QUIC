@@ -1,0 +1,102 @@
+{
+  "format": 1,
+  "restore": {
+    "/home/rain/Desktop/test/QUIC/Server/MyApp.Wasm/MyApp.Wasm.csproj": {}
+  },
+  "projects": {
+    "/home/rain/Desktop/test/QUIC/Server/MyApp.Wasm/MyApp.Wasm.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "/home/rain/Desktop/test/QUIC/Server/MyApp.Wasm/MyApp.Wasm.csproj",
+        "projectName": "MyApp.Wasm",
+        "projectPath": "/home/rain/Desktop/test/QUIC/Server/MyApp.Wasm/MyApp.Wasm.csproj",
+        "packagesPath": "/home/rain/.nuget/packages/",
+        "outputPath": "/home/rain/Desktop/test/QUIC/Server/MyApp.Wasm/obj/",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "/home/rain/.nuget/NuGet/NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net7.0"
+        ],
+        "sources": {
+          "/usr/share/dotnet/library-packs": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net7.0": {
+            "targetAlias": "net7.0",
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "noWarn": [
+            "NU1701"
+          ],
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "net7.0": {
+          "targetAlias": "net7.0",
+          "dependencies": {
+            "Microsoft.Extensions.Logging": {
+              "target": "Package",
+              "version": "[5.0.0, )"
+            },
+            "Microsoft.Windows.Compatibility": {
+              "target": "Package",
+              "version": "[5.0.0, )"
+            },
+            "Uno.Extensions.Logging.WebAssembly.Console": {
+              "target": "Package",
+              "version": "[1.4.0, )"
+            },
+            "Uno.UI.Adapter.Microsoft.Extensions.Logging": {
+              "target": "Package",
+              "version": "[4.10.13, )"
+            },
+            "Uno.UI.RemoteControl": {
+              "target": "Package",
+              "version": "[4.10.13, )"
+            },
+            "Uno.UI.WebAssembly": {
+              "target": "Package",
+              "version": "[4.10.13, )"
+            },
+            "Uno.Wasm.Bootstrap": {
+              "target": "Package",
+              "version": "[3.3.1, )"
+            },
+            "Uno.Wasm.Bootstrap.DevServer": {
+              "target": "Package",
+              "version": "[3.3.1, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.AspNetCore.App": {
+              "privateAssets": "none"
+            },
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "/usr/share/dotnet/sdk/7.0.401/RuntimeIdentifierGraph.json"
+        }
+      }
+    }
+  }
+}
