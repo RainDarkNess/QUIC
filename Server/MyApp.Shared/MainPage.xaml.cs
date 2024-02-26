@@ -30,6 +30,47 @@ namespace MyApp
 	/// </summary>
 	public sealed partial class MainPage : Page
 	{
+	
+	
+X509Certificate2 CreateSelfSignedCertificate()
+    {
+    var rsa = RSA.Create();
+    var certificateRequest = new CertificateRequest("CN= localhost", rsa, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1);
+    certificateRequest.CertificateExtensions.Add(
+    new X509BasicConstraintsExtension(
+    certificateAuthority: false,
+    hasPathLengthConstraint: false,
+    pathLengthConstraint: 0,
+    critical: true
+    )
+    );
+    certificateRequest.CertificateExtensions.Add(
+    new X509KeyUsageExtension(
+    keyUsages:
+    X509KeyUsageFlags.DigitalSignature | X509KeyUsageFlags.KeyEncipherment |
+    X509KeyUsageFlags.CrlSign | X509KeyUsageFlags.KeyCertSign,
+    critical: false
+    )
+    );
+    certificateRequest.CertificateExtensions.Add(
+    new X509EnhancedKeyUsageExtension(
+    new OidCollection {
+    new Oid("1.3.6.1.5.5.7.3.2"), // TLS Client auth
+    new Oid("1.3.6.1.5.5.7.3.1") // TLS Server auth
+    },
+    false));
+    certificateRequest.CertificateExtensions.Add(
+    new X509SubjectKeyIdentifierExtension(
+    key: certificateRequest.PublicKey,
+    critical: false
+    )
+    );
+    var sanBuilder = new SubjectAlternativeNameBuilder();
+    sanBuilder.AddDnsName("localhost");
+    certificateRequest.CertificateExtensions.Add(sanBuilder.Build());
+    return certificateRequest.CreateSelfSigned(DateTimeOffset.Now.AddDays(-1), DateTimeOffset.Now.AddYears(5));
+    }
+    
 		public MainPage()
 		{
 			this.InitializeComponent();
@@ -43,6 +84,10 @@ namespace MyApp
 			PortText.Text = "8081";
 		}
 		async void Button1_Click(object sender, RoutedEventArgs e){
+		
+	bool IsWorking = true;
+
+
             String IpStr = IpText.Text;
             String PortStr = PortText.Text;
             String AllIpPort = IpStr+PortStr;
@@ -52,7 +97,6 @@ Console.WriteLine("QUIC is not supported, check for presence of libmsquic and su
 return;
 }
     
-bool IsWorking = true;
 
 while(IsWorking){
     var cert2 = CreateSelfSignedCertificate();
@@ -123,11 +167,14 @@ Console.WriteLine(listener.LocalEndPoint);
         for(int y = 0; y < tmpBuffer.Length; y++){
             tmpBuffer[y] = buffer[y];
         }
-        ReadedText.Text = Encoding.UTF8.GetString(buffer, 0, buffer.Length);
+        
         memorySize+=tmpBuffer.Length;
+        ReadedText.Text = Encoding.UTF8.GetString(tmpBuffer, 0, tmpBuffer.Length);
         sw.Write(tmpBuffer, 0, tmpBuffer.Length);
+        Console.WriteLine("1231");
     }
     sw.Close();
+    //ReadedText.Text = EndString;
     Console.WriteLine("readed buffer");
 	Console.WriteLine(memorySize);
     DateTime localDate = DateTime.Now;
@@ -135,7 +182,7 @@ Console.WriteLine(listener.LocalEndPoint);
     var culture = new CultureInfo(Cult);
     string time = localDate.ToString(culture);
 
-    FileText.Text = "Filt size: "+memorySize + " bytes" + ", it sended at: " + time + " and saved at this path " + ". Summ of block: " + tmpBuffer.Length;
+    FileText.Text = "File size: "+memorySize + " bytes" + ", it sended at: " + time + " and saved at this path " + ". Summ of block: " + tmpBuffer.Length;
 	Console.WriteLine("readed local file");
     EndString = EndString + masaggeToString;
     Console.WriteLine(EndString.Length);
@@ -153,49 +200,11 @@ Console.WriteLine(listener.LocalEndPoint);
         Console.WriteLine("Executing finally block.");
     }
     k++;
-    if(k == 100){
-        IsWorking = false;
-    }
+    //if(k == 100){
+    //    IsWorking = false;
+    //}
 }
 
-X509Certificate2 CreateSelfSignedCertificate()
-    {
-    var rsa = RSA.Create();
-    var certificateRequest = new CertificateRequest("CN= localhost", rsa, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1);
-    certificateRequest.CertificateExtensions.Add(
-    new X509BasicConstraintsExtension(
-    certificateAuthority: false,
-    hasPathLengthConstraint: false,
-    pathLengthConstraint: 0,
-    critical: true
-    )
-    );
-    certificateRequest.CertificateExtensions.Add(
-    new X509KeyUsageExtension(
-    keyUsages:
-    X509KeyUsageFlags.DigitalSignature | X509KeyUsageFlags.KeyEncipherment |
-    X509KeyUsageFlags.CrlSign | X509KeyUsageFlags.KeyCertSign,
-    critical: false
-    )
-    );
-    certificateRequest.CertificateExtensions.Add(
-    new X509EnhancedKeyUsageExtension(
-    new OidCollection {
-    new Oid("1.3.6.1.5.5.7.3.2"), // TLS Client auth
-    new Oid("1.3.6.1.5.5.7.3.1") // TLS Server auth
-    },
-    false));
-    certificateRequest.CertificateExtensions.Add(
-    new X509SubjectKeyIdentifierExtension(
-    key: certificateRequest.PublicKey,
-    critical: false
-    )
-    );
-    var sanBuilder = new SubjectAlternativeNameBuilder();
-    sanBuilder.AddDnsName("localhost");
-    certificateRequest.CertificateExtensions.Add(sanBuilder.Build());
-    return certificateRequest.CreateSelfSigned(DateTimeOffset.Now.AddDays(-1), DateTimeOffset.Now.AddYears(5));
-    }
     Console.WriteLine("Exit");
 
 		}
