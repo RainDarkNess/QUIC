@@ -12,22 +12,21 @@
 
 <StackPanel Spacing="1">
 <TextBlock x:Name="TextBox1" Text="Hello, its QUIC`s client." Width="1900" Height="15" Margin="10,10,10,10" FontSize="14"/>
-<TextBlock x:Name="TextBoxStatus" Text="Status." Width="1900" Height="15" Margin="10,10,10,10" FontSize="11"/>
-<TextBlock x:Name="StatusOfSend" Text="Status..." Width="1900" Height="15" Margin="10,10,10,10" FontSize="11"/>
-<TextBox x:Name="TextType" Text="Read in here type of sendType (W to write text of F to Send text file)" Width="1900" Height="15" Margin="20,30,20,20" FontSize="11"/>
-<TextBox x:Name="TextPath" Text="Write Text of path of file." Width="1900" Height="15" Margin="10,10,10,10" FontSize="11"/>
-<TextBox x:Name="BlockSize" Text="Write Block size (in bytes)." Width="1900" Height="15" Margin="10,10,10,10" FontSize="11"/>
+<TextBlock x:Name="TextBoxStatus" Text="Статус." Width="1900" Height="15" Margin="10,10,10,10" FontSize="11"/>
+<TextBlock x:Name="StatusOfSend" Text="Статус..." Width="1900" Height="15" Margin="10,10,10,10" FontSize="11"/>
+<TextBox x:Name="TextType" Text="Тип отправки данных (напишите W для отправки текста F для отправки файла)" Width="1900" Height="15" Margin="20,30,20,20" FontSize="11"/>
+<TextBox x:Name="TextPath" Text="Путь до файла" Width="1900" Height="15" Margin="10,10,10,10" FontSize="11"/>
+<TextBox x:Name="BlockSize" Text="Размер отправляемых блоков" Width="1900" Height="15" Margin="10,10,10,10" FontSize="11"/>
 <TextBox x:Name="IpText" Text="ip." Width="1900" Height="15" Margin="10,10,10,10" FontSize="11"/>
 <TextBox x:Name="PortText" Text="port." Width="1900" Height="15" Margin="10,10,10,10" FontSize="11"/>
-    <Button Content="Send package"
-            x:Name="Button1"
-            Style="{StaticResource MaterialElevatedButtonStyle}"
-            Click="Button1_Click"/>
+    <Button Content="Send package" x:Name="Button1"
+     Style="{StaticResource MaterialElevatedButtonStyle}" 
+     Click="Button1_Click"/>
 
-    <Button Content="open"
+    <!-- <Button Content="open"
             x:Name="Button2"
             Style="{StaticResource MaterialElevatedButtonStyle}"
-            Click="Button2_Click"/>
+            Click="Button2_Click"/> -->
 
         <ListView x:Name="listwiew1">
             <ListView.Items>

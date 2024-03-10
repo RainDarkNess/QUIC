@@ -20,8 +20,6 @@ using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 
-// The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
-
 namespace MyApp
 {
 	/// <summary>
@@ -33,53 +31,54 @@ namespace MyApp
 	
         List<string> pathOfFiles = new List<string>();
 
-X509Certificate2 CreateSelfSignedCertificate()
-{
-    var rsa = RSA.Create();
-    var certificateRequest = new CertificateRequest("CN= localhost", rsa, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1);
-    certificateRequest.CertificateExtensions.Add(
-    new X509BasicConstraintsExtension(
-    certificateAuthority: false,
-    hasPathLengthConstraint: false,
-    pathLengthConstraint: 0,
-    critical: true
-)
-);
-    certificateRequest.CertificateExtensions.Add(
-    new X509KeyUsageExtension(
-    keyUsages:
-    X509KeyUsageFlags.DigitalSignature | X509KeyUsageFlags.KeyEncipherment |
-    X509KeyUsageFlags.CrlSign | X509KeyUsageFlags.KeyCertSign,
-    critical: false
-)
-);
-    certificateRequest.CertificateExtensions.Add(
-    new X509EnhancedKeyUsageExtension(
-    new OidCollection {
-    new Oid("1.3.6.1.5.5.7.3.2"), // TLS Client auth
-    new Oid("1.3.6.1.5.5.7.3.1") // TLS Server auth
-},
-false));
-    certificateRequest.CertificateExtensions.Add(
-    new X509SubjectKeyIdentifierExtension(
-    key: certificateRequest.PublicKey,
-    critical: false
-)
-);
-    var sanBuilder = new SubjectAlternativeNameBuilder();
-    sanBuilder.AddDnsName("localhost");
-    certificateRequest.CertificateExtensions.Add(sanBuilder.Build());
-    return certificateRequest.CreateSelfSigned(DateTimeOffset.Now.AddDays(-1), DateTimeOffset.Now.AddYears(5));
-    
+    X509Certificate2 CreateSelfSignedCertificate()
+    {
+        var rsa = RSA.Create();
+        var certificateRequest = new CertificateRequest("CN= localhost", rsa, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1);
+        certificateRequest.CertificateExtensions.Add(
+        new X509BasicConstraintsExtension(
+        certificateAuthority: false,
+        hasPathLengthConstraint: false,
+        pathLengthConstraint: 0,
+        critical: true
+    )
+    );
+        certificateRequest.CertificateExtensions.Add(
+        new X509KeyUsageExtension(
+        keyUsages:
+        X509KeyUsageFlags.DigitalSignature | X509KeyUsageFlags.KeyEncipherment |
+        X509KeyUsageFlags.CrlSign | X509KeyUsageFlags.KeyCertSign,
+        critical: false
+    )
+    );
+        certificateRequest.CertificateExtensions.Add(
+        new X509EnhancedKeyUsageExtension(
+        new OidCollection {
+        new Oid("1.3.6.1.5.5.7.3.2"), // TLS Client auth
+        new Oid("1.3.6.1.5.5.7.3.1") // TLS Server auth
+    },
+    false));
+        certificateRequest.CertificateExtensions.Add(
+        new X509SubjectKeyIdentifierExtension(
+        key: certificateRequest.PublicKey,
+        critical: false
+    )
+    );
+        var sanBuilder = new SubjectAlternativeNameBuilder();
+        sanBuilder.AddDnsName("localhost");
+        certificateRequest.CertificateExtensions.Add(sanBuilder.Build());
+        return certificateRequest.CreateSelfSigned(DateTimeOffset.Now.AddDays(-1), DateTimeOffset.Now.AddYears(5));
+        
     }
 		public MainPage()
 		{
 			this.InitializeComponent();
 		}
+
 		async void Button1_Click(object sender, RoutedEventArgs e){
             String ipTxt = IpText.Text;
             String port = PortText.Text;
-        String choose = TextType.Text;
+            String choose = TextType.Text;
 
         if(choose != "W" && choose != "w" && choose != "F" && choose != "f"){
             TextBoxStatus.Text = "Repet plize";
@@ -128,16 +127,29 @@ var clientConnectionOptions = new QuicClientConnectionOptions{
     	Console.WriteLine($"Connected {connection.LocalEndPoint} —> {connection.RemoteEndPoint}");
     	TextBoxStatus.Text = $"Connected {connection.LocalEndPoint} —> {connection.RemoteEndPoint}";
         await using var stream = await connection.OpenOutboundStreamAsync(QuicStreamType.Bidirectional);
-        char[] myChars = new char[] {'s', 't', 'o', 'p', '$', '$'};
-        var AllBytes = new byte[AllStr.Length+6];
+        char[] myChars_command = new char[] {'s', 't', 'o', 'p', '$', '$'};
+        
+	String FileName = path.Remove(0,2);
+	Console.WriteLine(FileName);
+	char[] FileNameChars = new char[FileName.Length+2];  
+     
+        for (int i = 0; i < FileName.Length; i++) {  
+            FileNameChars[i] = FileName[i];  
+        }  
+        
+        FileNameChars[FileNameChars.Length-1] = '$';
+        FileNameChars[FileNameChars.Length-2] = '$';
+        
+        char[] myChars = myChars_command.Concat(FileNameChars).ToArray();
+	
+        var AllBytes = new byte[AllStr.Length + myChars.Length];
+        
 	for(int t = 0; t < AllStr.Length; t++){
 		AllBytes[t] = AllStr[t];
 	}
 	for(int l = 0; l < Encoding.UTF8.GetBytes(myChars).Length; l++){
 		AllBytes[AllStr.Length+l] = Encoding.UTF8.GetBytes(myChars)[l];
 	}
-	
-	
         await stream.WriteAsync(AllBytes);
     }
     catch(Exception ee)
@@ -198,7 +210,9 @@ var clientConnectionOptions = new QuicClientConnectionOptions{
         // Write
         byte[] AllStr = Encoding.UTF8.GetBytes(WriteString);
         char[] myChars = new char[] {'s', 't', 'o', 'p', '$', '$'};
+        
         var AllBytes = new byte[AllStr.Length+6];
+
 	for(int t = 0; t < AllStr.Length; t++){
 		AllBytes[t] = AllStr[t];
 	}
@@ -223,6 +237,7 @@ var clientConnectionOptions = new QuicClientConnectionOptions{
     }
 
     }
+
 	async void Button2_Click(object sender, RoutedEventArgs e){
             var filePicker = new Windows.Storage.Pickers.FileOpenPicker();
             filePicker.FileTypeFilter.Add("*");

@@ -131,17 +131,24 @@ Console.WriteLine(listener.LocalEndPoint);
     // Read
     String masaggeToString = null;
     var buffer = new byte[1024];
+
+    
     try{
         int BufferSizeCons = Int32.Parse(BufferSize.Text); 
         buffer = new byte[BufferSizeCons];
     }catch{}
-	FileStream sw = new FileStream("test1.xcf", FileMode.Create);
+
            FileText.Text = " ";
            int bufferCount = 0;
            int memorySize = 0;
            int indexOfConsoleLog = 0;
+           DateTime localDate_start = DateTime.Now;
            ConsoleText.Text = " ";
            byte[] tmpBuffer = new byte[0];
+           byte[] byteName = new byte[0];
+           List<string> name = new List<string>();
+           String result_name = "";
+
     while(await stream.ReadAsync(buffer) > 0){
         bufferCount++;
         Console.WriteLine("Buffer #"+bufferCount);
@@ -149,6 +156,16 @@ Console.WriteLine(listener.LocalEndPoint);
             
         for(int l = 0; l < buffer.Length; l++){
             if((buffer[l] == 115) && (buffer[l+1] == 116) && (buffer[l+2] == 111) && (buffer[l+3] == 112) && (buffer[l+4] == 36) && (buffer[l+5] == 36)){
+                for(int j = l+6; j < buffer.Length; j++){
+                    if(buffer[j] == 36 && buffer[j+1] == 36){
+                        break;
+                    }else{
+                        byteName = new byte[1];
+                        byteName[0] = buffer[j];
+                        Console.WriteLine(Encoding.UTF8.GetString(byteName, 0, byteName.Length));
+                        result_name += Encoding.UTF8.GetString(byteName, 0, byteName.Length);
+                    }
+                }
                 break;
             }
             else{
@@ -158,7 +175,7 @@ Console.WriteLine(listener.LocalEndPoint);
         }
         Console.WriteLine("new buffer length "+tmpBuffer.Length);
         if(indexOfConsoleLog < 5){
-            ConsoleText.Text += "new buffer length: "+tmpBuffer.Length+'\n';
+            ConsoleText.Text += "Новая длина буффера: "+tmpBuffer.Length+'\n';
         }else{
             ConsoleText.Text = " ";
             indexOfConsoleLog = 0;
@@ -167,23 +184,30 @@ Console.WriteLine(listener.LocalEndPoint);
         for(int y = 0; y < tmpBuffer.Length; y++){
             tmpBuffer[y] = buffer[y];
         }
-        
+
+
         memorySize+=tmpBuffer.Length;
         ReadedText.Text = Encoding.UTF8.GetString(tmpBuffer, 0, tmpBuffer.Length);
-        sw.Write(tmpBuffer, 0, tmpBuffer.Length);
-        Console.WriteLine("1231");
     }
+    char[] charsToTrim = {' '};
+    string cleanName = result_name.Trim(charsToTrim);
+
+    Console.WriteLine(cleanName.Length);
+    FileStream sw = new FileStream(cleanName, FileMode.Create);
+    sw.Write(tmpBuffer, 0, tmpBuffer.Length);
+
     sw.Close();
     //ReadedText.Text = EndString;
     Console.WriteLine("readed buffer");
 	Console.WriteLine(memorySize);
-    DateTime localDate = DateTime.Now;
-    string Cult = "ru-RU";
-    var culture = new CultureInfo(Cult);
-    string time = localDate.ToString(culture);
+    DateTime localDate_end = DateTime.Now;
+    TimeSpan localDate = localDate_start.Subtract(localDate_end);
+    //string Cult = "ru-RU";
+    //var culture = new CultureInfo(Cult);
+    //string time = localDate.ToString(culture);
 
-    FileText.Text = "File size: "+memorySize + " bytes" + ", it sended at: " + time + " and saved at this path " + ". Summ of block: " + tmpBuffer.Length;
-	Console.WriteLine("readed local file");
+    FileText.Text = "Размер файла: "+ memorySize + " байтов" + ", отправка заняла: " + localDate.Minutes + " Минут " + localDate.Seconds + " Секунд " + localDate.Milliseconds + " Милисекунд\n " + " файл с названием "+ cleanName +" сохранен в эту деррикторию " + ". Количество принятых блоков: " + bufferCount;
+	Console.WriteLine("readed");
     EndString = EndString + masaggeToString;
     Console.WriteLine(EndString.Length);
     try
