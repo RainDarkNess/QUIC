@@ -148,24 +148,39 @@ Console.WriteLine(listener.LocalEndPoint);
            byte[] byteName = new byte[0];
            List<string> name = new List<string>();
            String result_name = "";
+           string cleanName = "";
+           bool isNotNamed = true;
+            int b = 0;
+           FileStream sw = new FileStream("text.txt", FileMode.Create);
 
     while(await stream.ReadAsync(buffer) > 0){
         bufferCount++;
         Console.WriteLine("Buffer #"+bufferCount);
         int tmpIntVal = 0;
+        while( b < buffer.Length){
             
-        for(int l = 0; l < buffer.Length; l++){
-            if((buffer[l] == 115) && (buffer[l+1] == 116) && (buffer[l+2] == 111) && (buffer[l+3] == 112) && (buffer[l+4] == 36) && (buffer[l+5] == 36)){
-                for(int j = l+6; j < buffer.Length; j++){
-                    if(buffer[j] == 36 && buffer[j+1] == 36){
-                        break;
+                    if(buffer[b] == 36 && buffer[b+1] == 36){
+                        // Console.WriteLine(Encoding.UTF8.GetString(byteName, 0, byteName.Length));
+                        // break;
+                        b = buffer.Length;
                     }else{
                         byteName = new byte[1];
-                        byteName[0] = buffer[j];
+                        byteName[0] = buffer[b];
                         Console.WriteLine(Encoding.UTF8.GetString(byteName, 0, byteName.Length));
                         result_name += Encoding.UTF8.GetString(byteName, 0, byteName.Length);
                     }
-                }
+                    b++;
+        }
+        if(isNotNamed){
+            sw = new FileStream(result_name, FileMode.Create);
+            isNotNamed = false;
+            Console.WriteLine("named");
+        }
+        for(int l = 0; l < buffer.Length; l++){
+
+
+            if((buffer[l] == 115) && (buffer[l+1] == 116) && (buffer[l+2] == 111) && (buffer[l+3] == 112) && (buffer[l+4] == 36) && (buffer[l+5] == 36)){
+             
                 break;
             }
             else{
@@ -188,15 +203,20 @@ Console.WriteLine(listener.LocalEndPoint);
 
         memorySize+=tmpBuffer.Length;
         ReadedText.Text = Encoding.UTF8.GetString(tmpBuffer, 0, tmpBuffer.Length);
+
+        char[] charsToTrim = {' '};
+        cleanName = result_name.Trim(charsToTrim);
+
+        // Console.WriteLine(cleanName.Length);
+
+
+        
+        sw.Write(tmpBuffer, 0, tmpBuffer.Length);
+
+
     }
-    char[] charsToTrim = {' '};
-    string cleanName = result_name.Trim(charsToTrim);
+        sw.Close();
 
-    Console.WriteLine(cleanName.Length);
-    FileStream sw = new FileStream(cleanName, FileMode.Create);
-    sw.Write(tmpBuffer, 0, tmpBuffer.Length);
-
-    sw.Close();
     //ReadedText.Text = EndString;
     Console.WriteLine("readed buffer");
 	Console.WriteLine(memorySize);

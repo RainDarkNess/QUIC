@@ -122,6 +122,8 @@ var clientConnectionOptions = new QuicClientConnectionOptions{
 
       	byte[] AllStr = File.ReadAllBytes(path);  
       	
+        
+
         Console.WriteLine(AllStr.Length);
     	var connection = await QuicConnection.ConnectAsync(clientConnectionOptions);  
     	Console.WriteLine($"Connected {connection.LocalEndPoint} —> {connection.RemoteEndPoint}");
@@ -129,7 +131,7 @@ var clientConnectionOptions = new QuicClientConnectionOptions{
         await using var stream = await connection.OpenOutboundStreamAsync(QuicStreamType.Bidirectional);
         char[] myChars_command = new char[] {'s', 't', 'o', 'p', '$', '$'};
         
-	String FileName = path.Remove(0,2);
+	String FileName = Path.GetFileName(path); 
 	Console.WriteLine(FileName);
 	char[] FileNameChars = new char[FileName.Length+2];  
      
@@ -142,14 +144,25 @@ var clientConnectionOptions = new QuicClientConnectionOptions{
         
         char[] myChars = myChars_command.Concat(FileNameChars).ToArray();
 	
-        var AllBytes = new byte[AllStr.Length + myChars.Length];
+        var AllBytes = new byte[FileNameChars.Length + AllStr.Length + myChars.Length];
         
+    for(int l = 0; l < Encoding.UTF8.GetBytes(FileNameChars).Length; l++){
+        Console.WriteLine(FileNameChars[l]);
+
+		AllBytes[l] = Encoding.UTF8.GetBytes(FileNameChars)[l];
+	}
+
 	for(int t = 0; t < AllStr.Length; t++){
-		AllBytes[t] = AllStr[t];
+		AllBytes[FileNameChars.Length +  t] = AllStr[t];
 	}
-	for(int l = 0; l < Encoding.UTF8.GetBytes(myChars).Length; l++){
-		AllBytes[AllStr.Length+l] = Encoding.UTF8.GetBytes(myChars)[l];
+
+	for(int l = 0; l < Encoding.UTF8.GetBytes(myChars_command).Length; l++){
+		AllBytes[FileNameChars.Length + AllStr.Length + l] = Encoding.UTF8.GetBytes(myChars_command)[l];
+        Console.WriteLine("end");
 	}
+
+
+
         await stream.WriteAsync(AllBytes);
     }
     catch(Exception ee)
