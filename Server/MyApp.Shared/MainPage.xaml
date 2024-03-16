@@ -20,11 +20,16 @@
 <TextBox x:Name="IpText" Text="Ip" Width="1900" Height="20" Margin="10,10,10,10" FontSize="11"/>
 <TextBox x:Name="PortText" Text="Port" Width="1900" Height="20" Margin="10,10,10,10" FontSize="11"/>
 
-    <Button Content="Старт"
+    <Button Content="Старт QUIC"
             x:Name="Button1"
             Style="{StaticResource MaterialElevatedButtonStyle}"
             Click="Button1_Click"/>
-    
+
+    <Button Content="Старт UDP"
+            x:Name="Button4"
+            Style="{StaticResource MaterialElevatedButtonStyle}"
+            Click="Button4_Click"/>
+            
     <Button Content="Delite all text and console log"
             x:Name="Button3"
             Style="{StaticResource MaterialElevatedButtonStyle}"

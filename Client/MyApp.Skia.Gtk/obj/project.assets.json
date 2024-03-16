@@ -5418,11 +5418,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/home/rain/QUIC_old/QUIC/Client/MyApp.Skia.Gtk/MyApp.Skia.Gtk.csproj",
+      "projectUniqueName": "/home/rain/QUIC/Client/MyApp.Skia.Gtk/MyApp.Skia.Gtk.csproj",
       "projectName": "MyApp.Skia.Gtk",
-      "projectPath": "/home/rain/QUIC_old/QUIC/Client/MyApp.Skia.Gtk/MyApp.Skia.Gtk.csproj",
+      "projectPath": "/home/rain/QUIC/Client/MyApp.Skia.Gtk/MyApp.Skia.Gtk.csproj",
       "packagesPath": "/root/.nuget/packages/",
-      "outputPath": "/home/rain/QUIC_old/QUIC/Client/MyApp.Skia.Gtk/obj/",
+      "outputPath": "/home/rain/QUIC/Client/MyApp.Skia.Gtk/obj/",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "/root/.nuget/NuGet/NuGet.Config"
@@ -5486,7 +5486,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "/usr/share/dotnet/sdk/7.0.404/RuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "/usr/lib/dotnet/sdk/7.0.117/RuntimeIdentifierGraph.json"
       }
     }
   }

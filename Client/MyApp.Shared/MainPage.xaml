@@ -19,9 +19,16 @@
 <TextBox x:Name="BlockSize" Text="Размер отправляемых блоков" Width="1900" Height="15" Margin="10,10,10,10" FontSize="11"/>
 <TextBox x:Name="IpText" Text="ip." Width="1900" Height="15" Margin="10,10,10,10" FontSize="11"/>
 <TextBox x:Name="PortText" Text="port." Width="1900" Height="15" Margin="10,10,10,10" FontSize="11"/>
-    <Button Content="Send package" x:Name="Button1"
-     Style="{StaticResource MaterialElevatedButtonStyle}" 
-     Click="Button1_Click"/>
+
+    <Button Content="Отправить пакет QUIC"
+        x:Name="Button1"
+        Style="{StaticResource MaterialElevatedButtonStyle}" 
+        Click="Button1_Click"/>
+
+    <Button Content="Отправить пакет UDP"
+        x:Name="Button2"
+        Style="{StaticResource MaterialElevatedButtonStyle}" 
+        Click="Button2_Click"/>
 
     <!-- <Button Content="open"
             x:Name="Button2"
@@ -33,10 +40,10 @@
             </ListView.Items>
         </ListView>
 
-    <Button Content="DeliteAll"
+    <!-- <Button Content="DeliteAll"
             x:Name="Button3"
             Style="{StaticResource MaterialElevatedButtonStyle}"
-            Click="Button3_Click"/>
+            Click="Button3_Click"/> -->
 
 </StackPanel> 
     
