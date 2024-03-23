@@ -175,7 +175,7 @@ namespace MyApp
                             jj+=Int32.Parse(BlockSize.Text);
                             Console.WriteLine("Packet# {0} sended", bbbb);
                             bbbb++;
-                            // Thread.Sleep(2);
+                            Thread.Sleep(Int32.Parse(Period.Text));
                         }
                     }catch{
                         await stream.WriteAsync(AllBytes[jj..AllBytes.Length]);
@@ -333,7 +333,7 @@ namespace MyApp
                             jj+=Int32.Parse(BlockSize.Text);
                             Console.WriteLine("Packet# {0} sended", bbbb);
                             bbbb++;
-                            Thread.Sleep(1);
+                            Thread.Sleep(Int32.Parse(Period.Text));
                         }
                     }catch{
                         await udpSender.SendAsync(AllBytes[jj..AllBytes.Length], new IPEndPoint(brodcastAddress, Int32.Parse(PortText.Text)));

@@ -20,6 +20,8 @@
 <TextBox x:Name="TextPath" Text="./1.jpg" Width="1900" Height="15" Margin="10,10,10,10" FontSize="11"/>
 <TextBlock x:Name="BlockSizeText" Text="Размер отправляемых блоков" Width="1900" Height="15" Margin="10,10,10,10" FontSize="11"/>
 <TextBox x:Name="BlockSize" Text="1024" Width="1900" Height="15" Margin="10,10,10,10" FontSize="11"/>
+<TextBlock x:Name="PeriodText" Text="Задержка потока отправки. Рекомендация оптимальной отправки данных: для QUIC поставить 0, для UDP поствить 2" Width="1900" Height="15" Margin="10,10,10,10" FontSize="11"/>
+<TextBox x:Name="Period" Text="2" Width="1900" Height="15" Margin="10,10,10,10" FontSize="11"/>
 <TextBlock x:Name="MethodSendType" Text="Метод отправки старый Old или новый New (Относится к QUIC)" Width="1900" Height="15" Margin="10,10,10,10" FontSize="11"/>
 <TextBox x:Name="MethodSend" Text="New" Width="1900" Height="15" Margin="10,10,10,10" FontSize="11"/>
 <TextBox x:Name="IpText" Text="ip." Width="1900" Height="15" Margin="10,10,10,10" FontSize="11"/>
