@@ -278,41 +278,46 @@ namespace MyApp
                     // Console.WriteLine($"Connected {connection.LocalEndPoint} —> {connection.RemoteEndPoint}");
                     // TextBoxStatus.Text = $"Connected {connection.LocalEndPoint} —> {connection.RemoteEndPoint}";
                     char[] myChars_command = new char[] {'s', 't', 'o', 'p', '$', '$'};
-                    
+                
                     String FileName = Path.GetFileName(path); 
                     Console.WriteLine(FileName);
                     char[] FileNameChars = new char[FileName.Length+2];  
+                    
+                        for (int i = 0; i < FileName.Length; i++) {  
+                            FileNameChars[i] = FileName[i];  
+                        }  
+                        
+                        FileNameChars[FileNameChars.Length-1] = '$';
+                        FileNameChars[FileNameChars.Length-2] = '$';
+                        
+                        // char[] myChars = myChars_command.Concat(FileNameChars).ToArray();
+                    
+                        var AllBytes = new byte[FileNameChars.Length + AllStr.Length + myChars_command.Length];
+                        
+                    for(int l = 0; l < FileNameChars.Length; l++){
+                        Console.WriteLine(FileNameChars[l]);
+
+                        AllBytes[l] = Encoding.UTF8.GetBytes(FileNameChars)[l];
+                    }
+
+                    for(int t = 0; t < AllStr.Length; t++){
+                        AllBytes[FileNameChars.Length + t] = AllStr[t];
+                    }
+
+                    for(int l = 0; l < myChars_command.Length; l++){
+                        AllBytes[FileNameChars.Length + AllStr.Length + l] = Encoding.UTF8.GetBytes(myChars_command)[l];
+                        // Console.WriteLine("end");
+                    }
+
                 
-                    for (int i = 0; i < FileName.Length; i++) {  
-                        FileNameChars[i] = FileName[i];  
-                    }  
-                    
-                    FileNameChars[FileNameChars.Length-1] = '$';
-                    FileNameChars[FileNameChars.Length-2] = '$';
-                    
-                    // char[] myChars = myChars_command.Concat(FileNameChars).ToArray();
-                
-                    var AllBytes = new byte[FileNameChars.Length + AllStr.Length + myChars_command.Length];
-                    
-                for(int l = 0; l < Encoding.UTF8.GetBytes(FileNameChars).Length; l++){
-                    Console.WriteLine(FileNameChars[l]);
-
-                    AllBytes[l] = Encoding.UTF8.GetBytes(FileNameChars)[l];
-                }
-
-                for(int t = 0; t < AllStr.Length; t++){
-                    AllBytes[FileNameChars.Length +  t] = AllStr[t];
-                }
-
-                for(int l = 0; l < Encoding.UTF8.GetBytes(myChars_command).Length; l++){
-                    AllBytes[FileNameChars.Length + AllStr.Length + l] = Encoding.UTF8.GetBytes(myChars_command)[l];
-                    Console.WriteLine("end");
-                }
                     int jj = 0;
+                    // int bbbb = 0;
                     try{
                         while(jj+Int32.Parse(BlockSize.Text) < AllBytes.Length){
                             await udpSender.SendAsync(AllBytes[jj..(jj+Int32.Parse(BlockSize.Text))], new IPEndPoint(brodcastAddress, Int32.Parse(PortText.Text)));
                             jj+=Int32.Parse(BlockSize.Text);
+                            // Console.WriteLine("Packet# {0} sended", bbbb);
+                            // bbbb++;
                         }
                     }catch{
                         await udpSender.SendAsync(AllBytes[jj..AllBytes.Length], new IPEndPoint(brodcastAddress, Int32.Parse(PortText.Text)));

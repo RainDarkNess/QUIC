@@ -274,14 +274,114 @@ X509Certificate2 CreateSelfSignedCertificate()
             receiveClient.EnableBroadcast = true;
             receiveClient.Client.Bind(new IPEndPoint(IPAddress.Parse(IpText.Text.Remove(IpText.Text.Length-1, 1)), Int32.Parse(PortText.Text)));
 
+                    FileText.Text = " ";
+                    int bufferCount = 0;
+                    int memorySize = 0;
+                    int indexOfConsoleLog = 0;
+                    DateTime localDate_start = DateTime.Now;
+                    ConsoleText.Text = " ";
+                    byte[] tmpBuffer = new byte[0];
+                    byte[] byteName = new byte[0];
+                    List<string> name = new List<string>();
+                    String result_name = "";
+                    string cleanName = "";
+                    bool isNotNamed = true;
+                        int b = 0;
+                        int bb = 0;
+                    FileStream sw = new FileStream("text.txt", FileMode.Create);
+
+
             while (true)
             {
+                // var result = await receiveClient.ReceiveAsync();
+                // string message = Encoding.UTF8.GetString(result.Buffer);
+                // if (message == "END") break;
+                // Console.WriteLine(message);
+            
+
+                // while(await stream.ReadAsync(buffer) > 0){
+
+
+                // while(true){
+
                 var result = await receiveClient.ReceiveAsync();
-                string message = Encoding.UTF8.GetString(result.Buffer);
-                if (message == "END") break;
-                Console.WriteLine(message);
-                
+                var buffer = result.Buffer;
+
+                    DateTime localDate_buffer = DateTime.Now;
+                    bufferCount++;
+                    Console.WriteLine("Buffer #"+bufferCount);
+                    int tmpIntVal = 0;
+
+                    if(isNotNamed){
+
+                        while( b < buffer.Length){
+                            
+                                    if(buffer[b] == 36 && buffer[b+1] == 36){
+                                        // Console.WriteLine(Encoding.UTF8.GetString(byteName, 0, byteName.Length));
+                                        // break;
+                                        bb = b + 2;
+                                        Console.WriteLine(bb);
+                                        b = buffer.Length;
+                                    }else{
+                                        byteName = new byte[1];
+                                        byteName[0] = buffer[b];
+                                        Console.WriteLine(Encoding.UTF8.GetString(byteName, 0, byteName.Length));
+                                        result_name += Encoding.UTF8.GetString(byteName, 0, byteName.Length);
+                                    }
+                                    b++;
+                        }
+                        sw = new FileStream(result_name, FileMode.Create);
+                        isNotNamed = false;
+                        Console.WriteLine("named");
+                    }
+                    for(int l = +bb; l < buffer.Length; l++){
+                        try{
+                            if((buffer[l] == 115) && (buffer[l+1] == 116) && (buffer[l+2] == 111) && (buffer[l+3] == 112) && (buffer[l+4] == 36) && (buffer[l+5] == 36)){
+                            
+                                break;
+                            }
+                            else{
+                                tmpIntVal++;
+                                tmpBuffer = new byte[tmpIntVal];
+                            }
+                        }catch(Exception jk){
+                            Console.WriteLine(jk);
+                        }
+                    }
+                    
+                    DateTime localDate_buufer_end = DateTime.Now;
+                    TimeSpan localDate_buffer_value = localDate_buffer.Subtract(localDate_buufer_end);
+                    Console.WriteLine("new buffer length "+tmpBuffer.Length + " time end: " + localDate_buffer_value);
+                    if(indexOfConsoleLog < 5){
+                        ConsoleText.Text += "Новая длина буффера: "+tmpBuffer.Length+'\n';
+                    }else{
+                        ConsoleText.Text = " ";
+                        indexOfConsoleLog = 0;
+                    }
+                    indexOfConsoleLog += 1;
+                    for(int y = 0; y < tmpBuffer.Length; y++){
+                        
+                        tmpBuffer[y] = buffer[y+bb];
+                    }
+
+                    memorySize+=tmpBuffer.Length;
+                    ReadedText.Text = Encoding.UTF8.GetString(tmpBuffer, 0, tmpBuffer.Length);
+
+                    char[] charsToTrim = {' '};
+                    cleanName = result_name.Trim(charsToTrim);
+                    
+                    sw.Write(tmpBuffer, 0, tmpBuffer.Length);
+
+                    bb = 0;
+                    buffer = null;
+
+                // }
+
             }
+            sw.Close();
+            Console.WriteLine("Writed   ");
+
+
             
             
         }
