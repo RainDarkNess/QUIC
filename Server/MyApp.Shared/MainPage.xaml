@@ -11,12 +11,13 @@
     <Grid>
 
 <StackPanel Spacing="2">
-<TextBox x:Name="TextBoxConnect" Text="QUIC сервер. ДЛя старта нажмите кнопку старт" Width="1900" Height="15" Margin="20,40,20,20" FontSize="11"/>
-<TextBox x:Name="FileReaderText" Text="Текст клиента" Width="1900" Height="15" Margin="10,10,10,10" FontSize="11"/>
+<TextBlock x:Name="TextBoxConnect" Text="QUIC сервер. ДЛя старта нажмите кнопку старт" Width="1900" Height="15" Margin="20,40,20,20" FontSize="11"/>
+<TextBlock x:Name="FileReaderText" Text="Текст клиента" Width="1900" Height="15" Margin="10,10,10,10" FontSize="11"/>
 <TextBlock x:Name="ConsoleText" Text="Консоль" Width="1900" Height="50" Margin="10,10,10,10" FontSize="11"/>
 <TextBlock x:Name="FileText" Text="Информация о файле" Width="1900" Height="50" Margin="10,10,10,10" FontSize="11"/>
 <TextBlock x:Name="ReadedText" Text="Текст" Width="1900" Height="50" Margin="10,10,10,10" FontSize="11"/>
-<TextBox x:Name="BufferSize" Text="Размер" Width="1900" Height="20" Margin="10,10,10,10" FontSize="11"/>
+<TextBlock x:Name="BufferSizeText" Text="Размер принимаемых блоков" Width="1900" Height="20" Margin="10,10,10,10" FontSize="11"/>
+<TextBox x:Name="BufferSize" Text="1024" Width="1900" Height="20" Margin="10,10,10,10" FontSize="11"/>
 <TextBox x:Name="IpText" Text="Ip" Width="1900" Height="20" Margin="10,10,10,10" FontSize="11"/>
 <TextBox x:Name="PortText" Text="Port" Width="1900" Height="20" Margin="10,10,10,10" FontSize="11"/>
 

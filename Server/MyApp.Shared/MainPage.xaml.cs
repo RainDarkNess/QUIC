@@ -289,10 +289,15 @@ X509Certificate2 CreateSelfSignedCertificate()
                         int b = 0;
                         int bb = 0;
                     FileStream sw = new FileStream("text.txt", FileMode.Create);
+                    bool time_checked = false;
 
 
             while (true)
             {
+                if(!time_checked){
+                    localDate_start = DateTime.Now;
+                    time_checked = true;
+                }
                 // var result = await receiveClient.ReceiveAsync();
                 // string message = Encoding.UTF8.GetString(result.Buffer);
                 // if (message == "END") break;
@@ -337,7 +342,7 @@ X509Certificate2 CreateSelfSignedCertificate()
                     for(int l = +bb; l < buffer.Length; l++){
                         try{
                             if((buffer[l] == 115) && (buffer[l+1] == 116) && (buffer[l+2] == 111) && (buffer[l+3] == 112) && (buffer[l+4] == 36) && (buffer[l+5] == 36)){
-                            
+                                
                                 break;
                             }
                             else{
@@ -378,6 +383,11 @@ X509Certificate2 CreateSelfSignedCertificate()
                 // }
 
             }
+            time_checked = false;
+            DateTime localDate_end = DateTime.Now;
+            TimeSpan localDate = localDate_start.Subtract(localDate_end);
+            FileText.Text = "Размер файла: "+ memorySize + " байтов" + ", отправка заняла: " + localDate.Minutes + " Минут " + localDate.Seconds + " Секунд " + localDate.Milliseconds + " Милисекунд\n " + " файл с названием "+ cleanName +" сохранен в эту деррикторию " + ". Количество принятых блоков: " + bufferCount;
+
             sw.Close();
             Console.WriteLine("Writed   ");
 

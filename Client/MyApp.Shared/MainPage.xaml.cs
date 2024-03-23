@@ -21,6 +21,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.Net.Sockets;
 using System.Net;
 using System.Text;
+using System.Threading;
 
 namespace MyApp
 {
@@ -165,9 +166,23 @@ namespace MyApp
                 // Console.WriteLine("end");
             }
 
-
-
-                await stream.WriteAsync(AllBytes);
+                if(MethodSend.Text == "New"){
+                    int jj = 0;
+                    int bbbb = 0;
+                    try{
+                        while(jj+Int32.Parse(BlockSize.Text) < AllBytes.Length){
+                            await stream.WriteAsync(AllBytes[jj..(jj+Int32.Parse(BlockSize.Text))]);
+                            jj+=Int32.Parse(BlockSize.Text);
+                            Console.WriteLine("Packet# {0} sended", bbbb);
+                            bbbb++;
+                            // Thread.Sleep(2);
+                        }
+                    }catch{
+                        await stream.WriteAsync(AllBytes[jj..AllBytes.Length]);
+                    }
+                }else{
+                    await stream.WriteAsync(AllBytes);
+                }
             }
             catch(Exception ee)
             {
@@ -311,13 +326,14 @@ namespace MyApp
 
                 
                     int jj = 0;
-                    // int bbbb = 0;
+                    int bbbb = 0;
                     try{
                         while(jj+Int32.Parse(BlockSize.Text) < AllBytes.Length){
                             await udpSender.SendAsync(AllBytes[jj..(jj+Int32.Parse(BlockSize.Text))], new IPEndPoint(brodcastAddress, Int32.Parse(PortText.Text)));
                             jj+=Int32.Parse(BlockSize.Text);
-                            // Console.WriteLine("Packet# {0} sended", bbbb);
-                            // bbbb++;
+                            Console.WriteLine("Packet# {0} sended", bbbb);
+                            bbbb++;
+                            Thread.Sleep(1);
                         }
                     }catch{
                         await udpSender.SendAsync(AllBytes[jj..AllBytes.Length], new IPEndPoint(brodcastAddress, Int32.Parse(PortText.Text)));

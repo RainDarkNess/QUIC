@@ -14,9 +14,14 @@
 <TextBlock x:Name="TextBox1" Text="Hello, its QUIC`s client." Width="1900" Height="15" Margin="10,10,10,10" FontSize="14"/>
 <TextBlock x:Name="TextBoxStatus" Text="Статус." Width="1900" Height="15" Margin="10,10,10,10" FontSize="11"/>
 <TextBlock x:Name="StatusOfSend" Text="Статус..." Width="1900" Height="15" Margin="10,10,10,10" FontSize="11"/>
-<TextBox x:Name="TextType" Text="Тип отправки данных (напишите W для отправки текста F для отправки файла)" Width="1900" Height="15" Margin="20,30,20,20" FontSize="11"/>
-<TextBox x:Name="TextPath" Text="Путь до файла" Width="1900" Height="15" Margin="10,10,10,10" FontSize="11"/>
-<TextBox x:Name="BlockSize" Text="Размер отправляемых блоков" Width="1900" Height="15" Margin="10,10,10,10" FontSize="11"/>
+<TextBlock x:Name="TextTypeText" Text="Тип отправки данных (напишите W для отправки текста F для отправки файла)" Width="1900" Height="15" Margin="10,10,10,10" FontSize="11"/>
+<TextBox x:Name="TextType" Text="f" Width="1900" Height="15" Margin="10,10,10,10" FontSize="11"/>
+<TextBlock x:Name="TextPathText" Text="Путь до файла" Width="1900" Height="15" Margin="10,10,10,10" FontSize="11"/>
+<TextBox x:Name="TextPath" Text="./1.jpg" Width="1900" Height="15" Margin="10,10,10,10" FontSize="11"/>
+<TextBlock x:Name="BlockSizeText" Text="Размер отправляемых блоков" Width="1900" Height="15" Margin="10,10,10,10" FontSize="11"/>
+<TextBox x:Name="BlockSize" Text="1024" Width="1900" Height="15" Margin="10,10,10,10" FontSize="11"/>
+<TextBlock x:Name="MethodSendType" Text="Метод отправки старый Old или новый New (Относится к QUIC)" Width="1900" Height="15" Margin="10,10,10,10" FontSize="11"/>
+<TextBox x:Name="MethodSend" Text="New" Width="1900" Height="15" Margin="10,10,10,10" FontSize="11"/>
 <TextBox x:Name="IpText" Text="ip." Width="1900" Height="15" Margin="10,10,10,10" FontSize="11"/>
 <TextBox x:Name="PortText" Text="port." Width="1900" Height="15" Margin="10,10,10,10" FontSize="11"/>
 
