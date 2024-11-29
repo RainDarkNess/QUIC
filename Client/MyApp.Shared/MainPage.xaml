@@ -1,0 +1,58 @@
+﻿<Page
+    x:Class="MyApp.MainPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:MyApp"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+    <Grid>
+
+<StackPanel Spacing="1">
+<TextBlock x:Name="TextBox1" Text="Hello, its QUIC`s client." Width="1900" Height="15" Margin="10,10,10,10" FontSize="14"/>
+<TextBlock x:Name="TextBoxStatus" Text="Статус." Width="1900" Height="15" Margin="10,10,10,10" FontSize="11"/>
+<TextBlock x:Name="StatusOfSend" Text="Статус..." Width="1900" Height="15" Margin="10,10,10,10" FontSize="11"/>
+<TextBlock x:Name="TextTypeText" Text="Тип отправки данных (напишите W для отправки текста F для отправки файла)" Width="1900" Height="15" Margin="10,10,10,10" FontSize="11"/>
+<TextBox x:Name="TextType" Text="f" Width="1900" Height="15" Margin="10,10,10,10" FontSize="11"/>
+<TextBlock x:Name="TextPathText" Text="Путь до файла" Width="1900" Height="15" Margin="10,10,10,10" FontSize="11"/>
+<TextBox x:Name="TextPath" Text="./1.jpg" Width="1900" Height="15" Margin="10,10,10,10" FontSize="11"/>
+<TextBlock x:Name="BlockSizeText" Text="Размер отправляемых блоков" Width="1900" Height="15" Margin="10,10,10,10" FontSize="11"/>
+<TextBox x:Name="BlockSize" Text="1024" Width="1900" Height="15" Margin="10,10,10,10" FontSize="11"/>
+<TextBlock x:Name="PeriodText" Text="Задержка потока отправки. Рекомендация оптимальной отправки данных: для QUIC поставить 0, для UDP поствить 2" Width="1900" Height="15" Margin="10,10,10,10" FontSize="11"/>
+<TextBox x:Name="Period" Text="2" Width="1900" Height="15" Margin="10,10,10,10" FontSize="11"/>
+<TextBlock x:Name="MethodSendType" Text="Метод отправки старый Old или новый New (Относится к QUIC)" Width="1900" Height="15" Margin="10,10,10,10" FontSize="11"/>
+<TextBox x:Name="MethodSend" Text="New" Width="1900" Height="15" Margin="10,10,10,10" FontSize="11"/>
+<TextBox x:Name="IpText" Text="ip." Width="1900" Height="15" Margin="10,10,10,10" FontSize="11"/>
+<TextBox x:Name="PortText" Text="port." Width="1900" Height="15" Margin="10,10,10,10" FontSize="11"/>
+
+    <Button Content="Отправить пакет QUIC"
+        x:Name="Button1"
+        Style="{StaticResource MaterialElevatedButtonStyle}" 
+        Click="Button1_Click"/>
+
+    <Button Content="Отправить пакет UDP"
+        x:Name="Button2"
+        Style="{StaticResource MaterialElevatedButtonStyle}" 
+        Click="Button2_Click"/>
+
+    <!-- <Button Content="open"
+            x:Name="Button2"
+            Style="{StaticResource MaterialElevatedButtonStyle}"
+            Click="Button2_Click"/> -->
+
+        <ListView x:Name="listwiew1">
+            <ListView.Items>
+            </ListView.Items>
+        </ListView>
+
+    <!-- <Button Content="DeliteAll"
+            x:Name="Button3"
+            Style="{StaticResource MaterialElevatedButtonStyle}"
+            Click="Button3_Click"/> -->
+
+</StackPanel> 
+    
+    </Grid>
+</Page>
