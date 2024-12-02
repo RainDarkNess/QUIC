@@ -87,7 +87,7 @@ X509Certificate2 CreateSelfSignedCertificate()
                 IpText.Text = IP+':';
                 PortText.Text = "8081";
 		}
-		async void Button1_Click(object sender, RoutedEventArgs e){
+		async void StartQuic_Click(object sender, RoutedEventArgs e){
 		
                 bool IsWorking = true;
 
@@ -100,8 +100,6 @@ X509Certificate2 CreateSelfSignedCertificate()
             Console.WriteLine("QUIC is not supported, check for presence of libmsquic and support of TLS 1.3.");
             return;
             }
-                
-
             while(IsWorking){
                 var cert2 = CreateSelfSignedCertificate();
                 var serverConnectionOptions = new QuicServerConnectionOptions
@@ -123,7 +121,7 @@ X509Certificate2 CreateSelfSignedCertificate()
                 ConnectionOptionsCallback = (_, _, _) => ValueTask.FromResult(serverConnectionOptions)
                 }); 
                 
-            TextBoxConnect.Text = "Connect started QUIC...";
+            TextBoxConnect.Text = "Запуск QUIC...";
             Console.WriteLine(listener.LocalEndPoint);
                 int k = 0;
                 String EndString = null;
@@ -171,8 +169,6 @@ X509Certificate2 CreateSelfSignedCertificate()
                         while( b < buffer.Length){
                             
                                     if(buffer[b] == 36 && buffer[b+1] == 36){
-                                        // Console.WriteLine(Encoding.UTF8.GetString(byteName, 0, byteName.Length));
-                                        // break;
                                         bb = b + 2;
                                         Console.WriteLine(bb);
                                         b = buffer.Length;
@@ -231,17 +227,12 @@ X509Certificate2 CreateSelfSignedCertificate()
                 }
                     sw.Close();
 
-                //ReadedText.Text = EndString;
                 Console.WriteLine("readed buffer");
                 Console.WriteLine(memorySize);
                 DateTime localDate_end = DateTime.Now;
                 TimeSpan localDate = localDate_start.Subtract(localDate_end);
-                //string Cult = "ru-RU";
-                //var culture = new CultureInfo(Cult);
-                //string time = localDate.ToString(culture);
 
                 FileText.Text = "Размер файла: "+ memorySize + " байтов" + ", отправка заняла: " + localDate.Minutes + " Минут " + localDate.Seconds + " Секунд " + localDate.Milliseconds + " Милисекунд\n " + " файл с названием "+ cleanName +" сохранен в эту деррикторию " + ". Количество принятых блоков: " + bufferCount;
-                // Console.WriteLine("readed");
                 try
                 {
                     await listener.DisposeAsync();
@@ -256,22 +247,17 @@ X509Certificate2 CreateSelfSignedCertificate()
                     Console.WriteLine("Executing finally block.");
                 }
                 k++;
-                //if(k == 100){
-                //    IsWorking = false;
-                //}
             }
-
             Console.WriteLine("Exit");
-
 		}
-        async void Button3_Click(object sender, RoutedEventArgs e){
+        async void DelLogs_Click(object sender, RoutedEventArgs e){
             ConsoleText.Text = " ";
             ReadedText.Text = " ";
         }
 
-        async void Button4_Click(object sender, RoutedEventArgs e){
+        async void StartUDP_Click(object sender, RoutedEventArgs e){
             Console.WriteLine("UDP is upped");    
-            TextBoxConnect.Text = "Connect started UDP...";
+            TextBoxConnect.Text = "Подключено с UDP...";
             var receiveClient = new UdpClient();
             receiveClient.EnableBroadcast = true;
             receiveClient.Client.Bind(new IPEndPoint(IPAddress.Parse(IpText.Text.Remove(IpText.Text.Length-1, 1)), Int32.Parse(PortText.Text)));
@@ -301,16 +287,6 @@ X509Certificate2 CreateSelfSignedCertificate()
                     localDate_start = DateTime.Now;
                     time_checked = true;
                 }
-                // var result = await receiveClient.ReceiveAsync();
-                // string message = Encoding.UTF8.GetString(result.Buffer);
-                // if (message == "END") break;
-                // Console.WriteLine(message);
-            
-
-                // while(await stream.ReadAsync(buffer) > 0){
-
-
-                // while(true){
 
                 var result = await receiveClient.ReceiveAsync();
                 var buffer = result.Buffer;
@@ -325,8 +301,6 @@ X509Certificate2 CreateSelfSignedCertificate()
                         while( b < buffer.Length){
                             
                                     if(buffer[b] == 36 && buffer[b+1] == 36){
-                                        // Console.WriteLine(Encoding.UTF8.GetString(byteName, 0, byteName.Length));
-                                        // break;
                                         bb = b + 2;
                                         Console.WriteLine(bb);
                                         b = buffer.Length;
@@ -388,17 +362,9 @@ X509Certificate2 CreateSelfSignedCertificate()
                     time_checked = false;
                     TimeSpan localDate = localDate_start.Subtract(localDate_end);
                     FileText.Text = "Размер файла: "+ memorySize + " байтов" + ", отправка заняла: " + localDate.Minutes + " Минут " + localDate.Seconds + " Секунд " + localDate.Milliseconds + " Милисекунд\n " + " файл с названием "+ cleanName +" сохранен в эту деррикторию " + ". Количество принятых блоков: " + bufferCount;
-
-                // }
-
             }
-
             sw.Close();
             Console.WriteLine("Writed   ");
-
-
-            
-            
         }
 	}
 }

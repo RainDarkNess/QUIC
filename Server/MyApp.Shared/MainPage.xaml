@@ -7,37 +7,114 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-
-    <Grid>
-
-<StackPanel Spacing="2">
-<TextBlock x:Name="TextBoxConnect" Text="QUIC сервер. ДЛя старта нажмите кнопку старт" Width="1900" Height="15" Margin="20,40,20,20" FontSize="11"/>
-<TextBlock x:Name="FileReaderText" Text="Текст клиента" Width="1900" Height="15" Margin="10,10,10,10" FontSize="11"/>
-<TextBlock x:Name="ConsoleText" Text="Консоль" Width="1900" Height="50" Margin="10,10,10,10" FontSize="11"/>
-<TextBlock x:Name="FileText" Text="Информация о файле" Width="1900" Height="50" Margin="10,10,10,10" FontSize="11"/>
-<TextBlock x:Name="ReadedText" Text="Текст" Width="1900" Height="50" Margin="10,10,10,10" FontSize="11"/>
-<TextBlock x:Name="BufferSizeText" Text="Размер принимаемых блоков" Width="1900" Height="20" Margin="10,10,10,10" FontSize="11"/>
-<TextBox x:Name="BufferSize" Text="1024" Width="1900" Height="20" Margin="10,10,10,10" FontSize="11"/>
-<TextBox x:Name="IpText" Text="Ip" Width="1900" Height="20" Margin="10,10,10,10" FontSize="11"/>
-<TextBox x:Name="PortText" Text="Port" Width="1900" Height="20" Margin="10,10,10,10" FontSize="11"/>
-
-    <Button Content="Старт QUIC"
-            x:Name="Button1"
-            Style="{StaticResource MaterialElevatedButtonStyle}"
-            Click="Button1_Click"/>
-
-    <Button Content="Старт UDP"
-            x:Name="Button4"
-            Style="{StaticResource MaterialElevatedButtonStyle}"
-            Click="Button4_Click"/>
-            
-    <Button Content="Delite all text and console log"
-            x:Name="Button3"
-            Style="{StaticResource MaterialElevatedButtonStyle}"
-            Click="Button3_Click"/>
-
-</StackPanel> 
+<ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
+<Grid Background="#1E1E1E">
+    <Grid.RowDefinitions>
+        <RowDefinition Height="Auto"/>
+        <RowDefinition Height="*"/>
+        <RowDefinition Height="Auto"/>
+    </Grid.RowDefinitions>
     
-    </Grid>
+    <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*"/>
+        <ColumnDefinition Width="Auto"/>
+    </Grid.ColumnDefinitions>
+
+    <StackPanel Grid.Row="0" Grid.ColumnSpan="2" Spacing="10" Margin="20">
+    <Button Content="Удалить все тексты и консольный лог" 
+         x:Name="DelLogs" 
+         Style="{StaticResource MaterialElevatedButtonStyle}" 
+         Click="DelLogs_Click" 
+         Margin="0,10"/>
+        <TextBlock x:Name="TextBoxConnect" 
+                   Text="QUIC сервер. Для старта нажмите кнопку старт" 
+                   FontSize="14" 
+                   Foreground="White" 
+                   Margin="0,20,0,10"/>
+    </StackPanel>
+
+    <StackPanel Grid.Row="1" Grid.Column="0" Spacing="10" Margin="20">
+        <TextBlock x:Name="FileReaderText" 
+                   Text="Текст клиента" 
+                   FontSize="12" 
+                   Foreground="White" 
+                   Margin="0,10"/>
+        
+    <TextBlock x:Name="ConsoleText" 
+               Text="Консоль" 
+               FontSize="12" 
+               Foreground="White" 
+               TextWrapping="Wrap"/>
+        
+        <TextBlock x:Name="FileText" 
+                   Text="Информация о файле" 
+                   FontSize="12" 
+                   Foreground="White" 
+                   Margin="0,10"/>
+        
+        <TextBlock x:Name="ReadedText" 
+                   Text="Текст" 
+                   FontSize="12" 
+                   Foreground="White" 
+                   Margin="0,10"/>
+        
+        <TextBlock x:Name="BufferSizeText" 
+                   Text="Размер принимаемых блоков" 
+                   FontSize="12" 
+                   Foreground="White" 
+                   Margin="0,10"/>
+        
+        <TextBox x:Name="BufferSize" 
+                  Text="1024" 
+                  Width="Auto" 
+                  Height="30" 
+                  Margin="0,10" 
+                  FontSize="12" 
+                  Background="#2D2D2D" 
+                  Foreground="White" 
+                  BorderBrush="#444444" 
+                  BorderThickness="1"/>
+        
+        <TextBox x:Name="IpText" 
+                  Text="Ip" 
+                  Width="Auto" 
+                  Height="30" 
+                  Margin="0,10" 
+                  FontSize="12" 
+                  Background="#2D2D2D" 
+                  Foreground="White" 
+                  BorderBrush="#444444" 
+                  BorderThickness="1"/>
+        
+        <TextBox x:Name="PortText" 
+                  Text="Port" 
+                  Width="Auto" 
+                  Height="30" 
+                  Margin="0,10" 
+                  FontSize="12" 
+                  Background="#2D2D2D" 
+                  Foreground="White" 
+                  BorderBrush="#444444" 
+                  BorderThickness="1"/>
+
+        <Button Content="Старт QUIC" 
+                x:Name="StartQuic" 
+                Style="{StaticResource MaterialElevatedButtonStyle}" 
+                Click="StartQuic_Click" 
+                Margin="0,10"/>
+        
+        <Button Content="Старт UDP" 
+                x:Name="StartUDP" 
+                Style="{StaticResource MaterialElevatedButtonStyle}" 
+                Click="StartUDP_Click" 
+                Margin="0,10"/>
+        <MediaPlayerElement AutoPlay="True" 
+        Source="ms-appx:///Assets/1.mp4" 
+        Height="200" 
+        Margin="0,10"/>
+
+    </StackPanel>
+</Grid>
+</ScrollViewer>
 </Page>
 

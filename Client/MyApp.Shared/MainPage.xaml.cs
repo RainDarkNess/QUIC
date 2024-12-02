@@ -78,7 +78,7 @@ namespace MyApp
             this.InitializeComponent();
         }
 
-        async void Button1_Click(object sender, RoutedEventArgs e){
+        async void QUICSend_Click(object sender, RoutedEventArgs e){
             	String choose = TextType.Text;
 
                 String ipTxt = IpText.Text;
@@ -86,7 +86,7 @@ namespace MyApp
                
 
             if(choose != "W" && choose != "w" && choose != "F" && choose != "f"){
-                TextBoxStatus.Text = "Repet plize";
+                TextBoxStatus.Text = "Ошибка повторите";
             }
             else if(choose == "F" || choose == "f"){
                     Console.WriteLine("picked file");
@@ -270,7 +270,7 @@ namespace MyApp
 
         }
 
-        async void Button2_Click(object sender, RoutedEventArgs e){
+        async void UDPSend_Click(object sender, RoutedEventArgs e){
 
             String WriteString = TextPath.Text;
             String choose = TextType.Text;
@@ -287,8 +287,6 @@ namespace MyApp
                     String path = TextPath.Text;
 
                     byte[] AllStr = File.ReadAllBytes(path);  
-                    
-                    
 
                     // Console.WriteLine($"Connected {connection.LocalEndPoint} —> {connection.RemoteEndPoint}");
                     // TextBoxStatus.Text = $"Connected {connection.LocalEndPoint} —> {connection.RemoteEndPoint}";
@@ -338,8 +336,6 @@ namespace MyApp
                     }catch{
                         await udpSender.SendAsync(AllBytes[jj..AllBytes.Length], new IPEndPoint(brodcastAddress, Int32.Parse(PortText.Text)));
                     }
-
-
             }
             else if(choose == "W" || choose == "w"){
 
