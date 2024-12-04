@@ -22,6 +22,11 @@ using System.Net.Sockets;
 using System.Net;
 using System.Text;
 using System.Threading;
+using System.Diagnostics;
+using System.Runtime.InteropServices;
+using System.Drawing;
+using Emgu.CV;
+using Emgu.CV.Structure;
 
 namespace MyApp
 {
@@ -78,292 +83,347 @@ namespace MyApp
             this.InitializeComponent();
         }
 
-        async void QUICSend_Click(object sender, RoutedEventArgs e){
-            	String choose = TextType.Text;
+private async void QUICSend_Click(object sender, RoutedEventArgs e)
+{
+    string choose = TextType.Text.ToLower();
+    string ipTxt = IpText.Text;
+    string port = PortText.Text;
 
-                String ipTxt = IpText.Text;
-                String port = PortText.Text;
-               
+    if (choose != "w" && choose != "f")
+    {
+        TextBoxStatus.Text = "Ошибка: неверный выбор. Повторите.";
+        return;
+    }
 
-            if(choose != "W" && choose != "w" && choose != "F" && choose != "f"){
-                TextBoxStatus.Text = "Ошибка повторите";
-            }
-            else if(choose == "F" || choose == "f"){
-                    Console.WriteLine("picked file");
-            if (!QuicConnection.IsSupported)
+    if (!QuicConnection.IsSupported)
+    {
+        Console.WriteLine("QUIC не поддерживается. Проверьте наличие libmsquic и поддержку TLS 1.3.");
+        return;
+    }
+
+    var cert2 = CreateSelfSignedCertificate();
+    var endPoint = IPEndPoint.Parse($"{ipTxt}{port}");
+    Console.WriteLine(endPoint);
+
+    var clientConnectionOptions = new QuicClientConnectionOptions
+    {
+        RemoteEndPoint = endPoint,
+        DefaultStreamErrorCode = 0x0A,
+        DefaultCloseErrorCode = 0x0B,
+        MaxInboundUnidirectionalStreams = 10,
+        MaxInboundBidirectionalStreams = 100,
+        ClientAuthenticationOptions = new SslClientAuthenticationOptions
+        {
+            ClientCertificates = new X509CertificateCollection { cert2 },
+            ApplicationProtocols = new List<SslApplicationProtocol>
             {
-                Console.WriteLine("QUIC is not supported, check for presence of libmsquic and support of TLS 1.3.");
-                return;
-            }
-
-            var cert2 = CreateSelfSignedCertificate();
-            var endPoint = IPEndPoint.Parse(ipTxt+port);
-            Console.WriteLine(endPoint);
-
-            var clientConnectionOptions = new QuicClientConnectionOptions{
-                    RemoteEndPoint = endPoint,
-                    DefaultStreamErrorCode = 0x0A,
-                    DefaultCloseErrorCode = 0x0B,
-                    MaxInboundUnidirectionalStreams = 10,
-                    MaxInboundBidirectionalStreams = 100,
-                    ClientAuthenticationOptions = new SslClientAuthenticationOptions
-                    {
-                    ClientCertificates = new X509CertificateCollection { cert2 },
-                    ApplicationProtocols = new List<SslApplicationProtocol>
-                    {
-                    new SslApplicationProtocol("test")
-                    },
-                    //192.168.0.107
-                    TargetHost =  ipTxt,
-                    RemoteCertificateValidationCallback = (sender, chain, certificate, errors) => true
-                    }
-                };
-
-            Console.WriteLine("Choose, File - [F] or Write to file - [W]");
-            try
-            {
-                Console.WriteLine("Entering...");
-                String path = TextPath.Text;
-
-                byte[] AllStr = File.ReadAllBytes(path);  
-                
-                
-
-                Console.WriteLine(AllStr.Length);
-                var connection = await QuicConnection.ConnectAsync(clientConnectionOptions);  
-                Console.WriteLine($"Connected {connection.LocalEndPoint} —> {connection.RemoteEndPoint}");
-                TextBoxStatus.Text = $"Connected {connection.LocalEndPoint} —> {connection.RemoteEndPoint}";
-                await using var stream = await connection.OpenOutboundStreamAsync(QuicStreamType.Bidirectional);
-                char[] myChars_command = new char[] {'s', 't', 'o', 'p', '$', '$'};
-                
-            String FileName = Path.GetFileName(path); 
-            Console.WriteLine(FileName);
-            char[] FileNameChars = new char[FileName.Length+2];  
-            
-                for (int i = 0; i < FileName.Length; i++) {  
-                    FileNameChars[i] = FileName[i];  
-                }  
-                
-                FileNameChars[FileNameChars.Length-1] = '$';
-                FileNameChars[FileNameChars.Length-2] = '$';
-                
-                // char[] myChars = myChars_command.Concat(FileNameChars).ToArray();
-            
-                var AllBytes = new byte[FileNameChars.Length + AllStr.Length + myChars_command.Length];
-                
-            for(int l = 0; l < FileNameChars.Length; l++){
-                Console.WriteLine(FileNameChars[l]);
-
-                AllBytes[l] = Encoding.UTF8.GetBytes(FileNameChars)[l];
-            }
-
-            for(int t = 0; t < AllStr.Length; t++){
-                AllBytes[FileNameChars.Length + t] = AllStr[t];
-            }
-
-            for(int l = 0; l < myChars_command.Length; l++){
-                AllBytes[FileNameChars.Length + AllStr.Length + l] = Encoding.UTF8.GetBytes(myChars_command)[l];
-                // Console.WriteLine("end");
-            }
-
-                if(MethodSend.Text == "New"){
-                    int jj = 0;
-                    int bbbb = 0;
-                    try{
-                        while(jj+Int32.Parse(BlockSize.Text) < AllBytes.Length){
-                            await stream.WriteAsync(AllBytes[jj..(jj+Int32.Parse(BlockSize.Text))]);
-                            jj+=Int32.Parse(BlockSize.Text);
-                            Console.WriteLine("Packet# {0} sended", bbbb);
-                            bbbb++;
-                            Thread.Sleep(Int32.Parse(Period.Text));
-                        }
-                    }catch{
-                        await stream.WriteAsync(AllBytes[jj..AllBytes.Length]);
-                    }
-                }else{
-                    await stream.WriteAsync(AllBytes);
-                }
-            }
-            catch(Exception ee)
-            {
-                Console.WriteLine("Exception: " + ee.Message);
-            }
-            finally
-            {
-                Console.WriteLine("Executing finally block.");
-            }
-
-                StatusOfSend.Text = StatusOfSend.Text + " done...";
-
-            }
-                
-            else if(choose == "W" || choose == "w"){
-
-
-            if (!QuicConnection.IsSupported)
-            {
-                Console.WriteLine("QUIC is not supported, check for presence of libmsquic and support of TLS 1.3.");
-                return;
-            }
-
-            var cert2 = CreateSelfSignedCertificate();
-            var endPoint = IPEndPoint.Parse(ipTxt+port);
-            Console.WriteLine(endPoint);
-
-            var clientConnectionOptions = new QuicClientConnectionOptions{
-                RemoteEndPoint = endPoint,
-                DefaultStreamErrorCode = 0x0A,
-                DefaultCloseErrorCode = 0x0B,
-                MaxInboundUnidirectionalStreams = 10,
-                MaxInboundBidirectionalStreams = 100,
-                ClientAuthenticationOptions = new SslClientAuthenticationOptions
-                {
-                ClientCertificates = new X509CertificateCollection { cert2 },
-                ApplicationProtocols = new List<SslApplicationProtocol>
-                {
                 new SslApplicationProtocol("test")
-                },
-                //192.168.0.107
-                TargetHost = ipTxt,
-                RemoteCertificateValidationCallback = (sender, chain, certificate, errors) => true
-                }
-            };
-            var connection = await QuicConnection.ConnectAsync(clientConnectionOptions);
-            Console.WriteLine($"Connected {connection.LocalEndPoint} —> {connection.RemoteEndPoint}");
-            TextBoxStatus.Text = $"Connected {connection.LocalEndPoint} —> {connection.RemoteEndPoint}";
+            },
+            TargetHost = ipTxt,
+            RemoteCertificateValidationCallback = (sender, chain, certificate, errors) => true
+        }
+    };
 
-            //Pass the file path and file name to the StreamReader constructor
-            Console.WriteLine("Choose, File - [F] or Write to file - [W]");
+    try
+    {
+        var connection = await QuicConnection.ConnectAsync(clientConnectionOptions);
+        Console.WriteLine($"Connected {connection.LocalEndPoint} —> {connection.RemoteEndPoint}");
+        TextBoxStatus.Text = $"Connected {connection.LocalEndPoint} —> {connection.RemoteEndPoint}";
 
-                Console.WriteLine("Writing");
-                String WriteString = TextPath.Text;
-            
-                await using var stream = await connection.OpenOutboundStreamAsync(QuicStreamType.Bidirectional);
-                // Write
-                byte[] AllStr = Encoding.UTF8.GetBytes(WriteString);
-                char[] myChars = new char[] {'s', 't', 'o', 'p', '$', '$'};
-                
-                var AllBytes = new byte[AllStr.Length+6];
+        await using var stream = await connection.OpenOutboundStreamAsync(QuicStreamType.Bidirectional);
+        
+        if (choose == "f")
+        {
+    string path = TextPath.Text;
+    byte[] fileBytes = await File.ReadAllBytesAsync(path);
+    string fileName = Path.GetFileName(path);
+    byte[] fileNameBytes = Encoding.UTF8.GetBytes(fileName + "$$");
+    byte[] stopCommand = Encoding.UTF8.GetBytes("stop$$");
+    
+    byte[] allBytes = new byte[fileNameBytes.Length + fileBytes.Length + stopCommand.Length];
+    Buffer.BlockCopy(fileNameBytes, 0, allBytes, 0, fileNameBytes.Length);
+    Buffer.BlockCopy(fileBytes, 0, allBytes, fileNameBytes.Length, fileBytes.Length);
+    Buffer.BlockCopy(stopCommand, 0, allBytes, fileNameBytes.Length + fileBytes.Length, stopCommand.Length);
 
-            for(int t = 0; t < AllStr.Length; t++){
-                AllBytes[t] = AllStr[t];
-            }
-            for(int l = 0; l < Encoding.UTF8.GetBytes(myChars).Length; l++){
-                AllBytes[AllStr.Length+l] = Encoding.UTF8.GetBytes(myChars)[l];
-            }
-            
-            
-                await stream.WriteAsync(AllBytes);
-                
-                await stream.WriteAsync(Encoding.UTF8.GetBytes(WriteString+'`'));
-                // Read
-                var buffer = new byte[4096];
-                try{
-                    int BlockSizeInt = Int32.Parse(BlockSize.Text);
-                    buffer = new byte[BlockSizeInt];
-                }catch{
-                }
-                await stream.ReadAsync(buffer);
-                StatusOfSend.Text = StatusOfSend.Text + " done...";
-
-            }
-
+    int blockSize = int.TryParse(BlockSize.Text, out int size) ? size : 4096;
+    for (int i = 0; i < allBytes.Length; i += blockSize)
+    {
+        int bytesToSend = Math.Min(blockSize, allBytes.Length - i);
+        await stream.WriteAsync(allBytes.AsMemory(i, bytesToSend));
+        Console.WriteLine($"Sent packet #{i / blockSize}");
+        await Task.Delay(int.TryParse(Period.Text, out int period) ? period : 100);
+    }
+        }
+        else if (choose == "w")
+        {
+             string writeString = TextPath.Text;
+    		byte[] writeBytes = Encoding.UTF8.GetBytes(writeString + "stop$$");
+    		await stream.WriteAsync(writeBytes);
+    
+    		// Read response (if necessary)
+    		var buffer = new byte[4096];
+    		int bytesRead = await stream.ReadAsync(buffer);
         }
 
-        async void UDPSend_Click(object sender, RoutedEventArgs e){
+        StatusOfSend.Text += " done...";
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"Exception: {ex.Message}");
+        TextBoxStatus.Text = "Ошибка при подключении или отправке данных.";
+    }
+}
 
-            String WriteString = TextPath.Text;
-            String choose = TextType.Text;
+async void StopButton_Click(object sender, RoutedEventArgs e)
+{
+    
+}
 
-            var brodcastAddress = IPAddress.Parse(IpText.Text.Remove(IpText.Text.Length-1, 1)); 
-            using var udpSender = new UdpClient();
-            Console.WriteLine("Начало отправки пакетов...");
-            
-            if(choose != "W" && choose != "w" && choose != "F" && choose != "f"){
-                TextBoxStatus.Text = "Repet plize";
+async void UDPSend_Click(object sender, RoutedEventArgs e) {
+    String WriteString = TextPath.Text;
+    String choose = TextType.Text;
+
+    var broadcastAddress = IPAddress.Parse(IpText.Text.Remove(IpText.Text.Length-1, 1)); 
+    using var udpSender = new UdpClient();
+    Console.WriteLine("Начало отправки пакетов...");
+
+    if (choose != "W" && choose != "w" && choose != "F" && choose != "f" && choose != "V" && choose != "v") {
+        TextBoxStatus.Text = "Выберите правильный тип отправки";
+    }else if (choose == "V" || choose == "v") {
+    string path = TextPath.Text;
+    
+    
+    string udpIp = IpText.Text.Remove(IpText.Text.Length-1, 1); // IP-адрес получателя
+    int udpPort = Int32.Parse(PortText.Text); // Порт для передачи видео
+
+    int blockSize =Int32.Parse(BlockSize.Text); // Размер блока (можно изменить)
+    int delayBetweenFrames = Int32.Parse(Period.Text); // Задержка между кадрами в миллисекундах
+
+    using (var udpSender1 = new UdpClient())
+    {
+        var process = new Process
+        {
+            StartInfo = new ProcessStartInfo
+            {
+                FileName = "ffmpeg",
+                Arguments = $"-i \"{path}\" -f image2pipe -vcodec mjpeg -",
+                RedirectStandardOutput = true,
+                UseShellExecute = false,
+                CreateNoWindow = true
             }
-            else if(choose == "F" || choose == "f"){
-                    Console.WriteLine("Entering...");
-                    String path = TextPath.Text;
+        };
 
-                    byte[] AllStr = File.ReadAllBytes(path);  
+        process.Start();
 
-                    // Console.WriteLine($"Connected {connection.LocalEndPoint} —> {connection.RemoteEndPoint}");
-                    // TextBoxStatus.Text = $"Connected {connection.LocalEndPoint} —> {connection.RemoteEndPoint}";
-                    char[] myChars_command = new char[] {'s', 't', 'o', 'p', '$', '$'};
-                
-                    String FileName = Path.GetFileName(path); 
-                    Console.WriteLine(FileName);
-                    char[] FileNameChars = new char[FileName.Length+2];  
-                    
-                        for (int i = 0; i < FileName.Length; i++) {  
-                            FileNameChars[i] = FileName[i];  
-                        }  
-                        
-                        FileNameChars[FileNameChars.Length-1] = '$';
-                        FileNameChars[FileNameChars.Length-2] = '$';
-                        
-                        // char[] myChars = myChars_command.Concat(FileNameChars).ToArray();
-                    
-                        var AllBytes = new byte[FileNameChars.Length + AllStr.Length + myChars_command.Length];
-                        
-                    for(int l = 0; l < FileNameChars.Length; l++){
-                        Console.WriteLine(FileNameChars[l]);
+        byte[] buffer = new byte[blockSize];
+        int packetIndex = 0;
 
-                        AllBytes[l] = Encoding.UTF8.GetBytes(FileNameChars)[l];
-                    }
-
-                    for(int t = 0; t < AllStr.Length; t++){
-                        AllBytes[FileNameChars.Length + t] = AllStr[t];
-                    }
-
-                    for(int l = 0; l < myChars_command.Length; l++){
-                        AllBytes[FileNameChars.Length + AllStr.Length + l] = Encoding.UTF8.GetBytes(myChars_command)[l];
-                        // Console.WriteLine("end");
-                    }
-
-                
-                    int jj = 0;
-                    int bbbb = 0;
-                    try{
-                        while(jj+Int32.Parse(BlockSize.Text) < AllBytes.Length){
-                            await udpSender.SendAsync(AllBytes[jj..(jj+Int32.Parse(BlockSize.Text))], new IPEndPoint(brodcastAddress, Int32.Parse(PortText.Text)));
-                            jj+=Int32.Parse(BlockSize.Text);
-                            Console.WriteLine("Packet# {0} sended", bbbb);
-                            bbbb++;
-                            Thread.Sleep(Int32.Parse(Period.Text));
-                        }
-                    }catch{
-                        await udpSender.SendAsync(AllBytes[jj..AllBytes.Length], new IPEndPoint(brodcastAddress, Int32.Parse(PortText.Text)));
-                    }
+        while (true)
+        {
+            // Читаем кадры из стандартного вывода FFmpeg
+            int bytesRead = await process.StandardOutput.BaseStream.ReadAsync(buffer, 0, buffer.Length);
+            if (bytesRead == 0)
+            {
+                Console.WriteLine("Конец видео.");
+                break; // Конец видео
             }
-            else if(choose == "W" || choose == "w"){
 
-                byte[] AllStr = Encoding.UTF8.GetBytes(WriteString);
-                char[] myChars = new char[] {'s', 't', 'o', 'p', '$', '$'};
-                    
-                var AllBytes = new byte[AllStr.Length+6];
-
-                for(int t = 0; t < AllStr.Length; t++){
-                    AllBytes[t] = AllStr[t];
-                }
-                for(int l = 0; l < Encoding.UTF8.GetBytes(myChars).Length; l++){
-                    AllBytes[AllStr.Length+l] = Encoding.UTF8.GetBytes(myChars)[l];
-                }
-                
-                    byte[] data = AllBytes;
-                    await udpSender.SendAsync(data, new IPEndPoint(brodcastAddress, Int32.Parse(PortText.Text)));
-
-                    // Read
-                    var buffer = new byte[4096];
-                    try{
-                        int BlockSizeInt = Int32.Parse(BlockSize.Text);
-                        buffer = new byte[BlockSizeInt];
-                    }catch{
-                    }
-                    StatusOfSend.Text = StatusOfSend.Text + " done...";
-
+            // Конвертируем прочитанные байты в изображение
+            using (var ms = new MemoryStream(buffer, 0, bytesRead))
+            {
+                byte[] frameBytes = ms.ToArray(); // Сохраняем кадр в виде байтов
+                await udpSender1.SendAsync(frameBytes, new IPEndPoint(IPAddress.Parse(udpIp), udpPort));
+                Console.WriteLine($"Отправлен кадр# {packetIndex}");
+                packetIndex++;
+                await Task.Delay(delayBetweenFrames); // Задержка между кадрами
             }
         }
+
+        process.WaitForExit(); // Ждем завершения процесса
+        Console.WriteLine("Процесс завершен.");
+    }
+    
+    // Неработает
+    // string udpIp = IpText.Text.Remove(IpText.Text.Length-1, 1); // IP-адрес получателя
+    // int udpPort = Int32.Parse(PortText.Text); // Порт для передачи видео
+    // //
+    // // // Создание UDP-клиента
+    // UdpClient client = new UdpClient();
+    // //
+    // // // Путь к видеофайлу (замените на свой путь)
+    // string videoPath = path; 
+    // VideoCapture capture = new VideoCapture(videoPath);
+    //
+    // if (!capture.IsOpened)
+    // {
+    //     Console.WriteLine("Error: Could not open video file.");
+    //     return;
+    // }
+    // IPEndPoint endPoint = new IPEndPoint(IPAddress.Parse(udpIp), udpPort);
+    //
+    // while (true)
+    // {
+    //     Mat frame = new Mat();
+    //     capture.Read(frame);
+    //     if (frame.IsEmpty)
+    //     {
+    //         Console.WriteLine("End of video stream or error reading frame.");
+    //         break;
+    //     }
+    //
+    //     // Кодирование кадра в формат JPEG
+    //     Image<Bgr, byte> image = frame.ToImage<Bgr, byte>();
+    //     using (var memoryStream = new System.IO.MemoryStream())
+    //     {
+    //         image.ToBitmap().Save(memoryStream, System.Drawing.Imaging.ImageFormat.Jpeg);
+    //         byte[] buffer = memoryStream.ToArray();
+    //
+    //         // Отправка размера данных сначала
+    //         byte[] dataSize = BitConverter.GetBytes(buffer.Length);
+    //         Array.Reverse(dataSize); // Преобразование порядка байт, чтобы соответствовать big-endian
+    //         client.Send(dataSize, dataSize.Length, endPoint);
+    //
+    //         // Отправка данных изображения частями
+    //         const int MAX_UDP_SIZE = 1400;
+    //         for (int i = 0; i < buffer.Length; i += MAX_UDP_SIZE)
+    //         {
+    //             int size = Math.Min(MAX_UDP_SIZE, buffer.Length - i);
+    //             client.Send(buffer, size, udpIp, udpPort);
+    //         }
+    //     }
+    // }
+    //
+    // capture.Dispose();
+    // client.Close();
+    
+    
+    // просто отправка байтов 
+    // try {
+    //     byte[] allBytes = File.ReadAllBytes(path);
+    //     var totalBytes = allBytes; // Используем только содержимое файла
+    //
+    //     int blockSize = Int32.Parse(BlockSize.Text);
+    //     int offset = 0;
+    //     int packetIndex = 0;
+    //
+    //     // Находим длину totalBytes и проверяем, что она больше 0
+    //     if (totalBytes.Length == 0) {
+    //         Console.WriteLine("Пустой файл. Нечего отправлять.");
+    //         return;
+    //     }
+    //
+    //     while (offset < totalBytes.Length) {
+    //         int sizeToSend = Math.Min(blockSize, totalBytes.Length - offset);
+    //     
+    //         // Проверка на случай, если sizeToSend становился бы 0
+    //         if (sizeToSend <= 0) {
+    //             break; // Мы вышли за пределы, завершаем цикл
+    //         }
+    //
+    //         byte[] packet = new byte[sizeToSend];
+    //         Buffer.BlockCopy(totalBytes, offset, packet, 0, sizeToSend);
+    //
+    //         await udpSender.SendAsync(packet, new IPEndPoint(broadcastAddress, Int32.Parse(PortText.Text)));
+    //         offset += sizeToSend;
+    //         Console.WriteLine("Отправлен пакет# {0}", packetIndex);
+    //         packetIndex++;
+    //         await Task.Delay(Int32.Parse(Period.Text));
+    //     }
+    // } catch (Exception ex) {
+    //     Console.WriteLine($"Ошибка при отправке пакета: {ex.Message}");
+    // }
+    
+    // Деление с ffmeg
+    // try {
+    //     // Запускаем FFmpeg для извлечения кадров
+    //     var process = new Process {
+    //         StartInfo = new ProcessStartInfo {
+    //             FileName = "ffmpeg",
+    //             Arguments = $"-i \"{path}\" -f image2pipe -vcodec mjpeg -",
+    //             RedirectStandardOutput = true,
+    //             UseShellExecute = false,
+    //             CreateNoWindow = true
+    //         }
+    //     };
+    //
+    //     process.Start();
+    //     int blockSize = Int32.Parse(BlockSize.Text);
+    //
+    //     byte[] buffer = new byte[blockSize];
+    //     int packetIndex = 0;
+    //
+    //     while (true) {
+    //         // Читаем кадры из стандартного вывода FFmpeg
+    //         int bytesRead = process.StandardOutput.BaseStream.Read(buffer, 0, buffer.Length);
+    //         if (bytesRead == 0) {
+    //             break; // Конец видео
+    //         }
+    //
+    //         // Конвертируем прочитанные байты в изображение
+    //         using (var ms = new MemoryStream(buffer, 0, bytesRead)) {
+    //             // Здесь можно добавить проверку формата изображения
+    //             byte[] frameBytes = ms.ToArray(); // Сохраняем кадр в виде байтов
+    //             await udpSender.SendAsync(frameBytes, new IPEndPoint(broadcastAddress, Int32.Parse(PortText.Text)));
+    //             Console.WriteLine("Отправлен кадр# {0}", packetIndex);
+    //             packetIndex++;
+    //             await Task.Delay(Int32.Parse(Period.Text)); // Задержка между кадрами
+    //         }
+    //     }
+    //
+    //     process.WaitForExit();
+    //     Console.WriteLine("Отправка завершена.");
+    // } catch (Exception ex) {
+    //     Console.WriteLine($"Ошибка при отправке видео: {ex.Message}");
+    // }
+}
+    else if (choose == "F" || choose == "f") {
+        try {
+            String path = TextPath.Text;
+            byte[] allBytes = File.ReadAllBytes(path);
+            String fileName = Path.GetFileName(path);
+            var header = Encoding.UTF8.GetBytes(fileName + "$$");
+            var commandBytes = Encoding.UTF8.GetBytes("stop$$");
+            var totalBytes = new byte[header.Length + allBytes.Length + commandBytes.Length];
+
+            Buffer.BlockCopy(header, 0, totalBytes, 0, header.Length);
+            Buffer.BlockCopy(allBytes, 0, totalBytes, header.Length, allBytes.Length);
+            Buffer.BlockCopy(commandBytes, 0, totalBytes, header.Length + allBytes.Length, commandBytes.Length);
+
+            int blockSize = Int32.Parse(BlockSize.Text);
+            int offset = 0;
+            int packetIndex = 0;
+
+            while (offset < totalBytes.Length) {
+                int sizeToSend = Math.Min(blockSize, totalBytes.Length - offset);
+                byte[] packet = new byte[sizeToSend];
+                Buffer.BlockCopy(totalBytes, offset, packet, 0, sizeToSend);
+
+                await udpSender.SendAsync(packet, new IPEndPoint(broadcastAddress, Int32.Parse(PortText.Text)));
+                offset += sizeToSend;
+                Console.WriteLine("Отправлен пакет# {0}", packetIndex);
+                packetIndex++;
+                await Task.Delay(Int32.Parse(Period.Text));
+            }
+        } catch (Exception ex) {
+            Console.WriteLine($"Ошибка при отправке пакета: {ex.Message}");
+        }
+    } else if (choose == "W" || choose == "w") {
+        try {
+            byte[] allStr = Encoding.UTF8.GetBytes(WriteString);
+            byte[] commandBytes = Encoding.UTF8.GetBytes("stop$$");
+            var allBytes = new byte[allStr.Length + commandBytes.Length];
+
+            Buffer.BlockCopy(allStr, 0, allBytes, 0, allStr.Length);
+            Buffer.BlockCopy(commandBytes, 0, allBytes, allStr.Length, commandBytes.Length);
+
+            await udpSender.SendAsync(allBytes, new IPEndPoint(broadcastAddress, Int32.Parse(PortText.Text)));
+            StatusOfSend.Text += " done...";
+        } catch (Exception ex) {
+            Console.WriteLine($"Ошибка при отправке текста: {ex.Message}");
+        }
+    }
+}
+
+
 	}
 }

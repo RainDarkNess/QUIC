@@ -108,11 +108,6 @@
                 Style="{StaticResource MaterialElevatedButtonStyle}" 
                 Click="StartUDP_Click" 
                 Margin="0,10"/>
-        <MediaPlayerElement AutoPlay="True" 
-        Source="ms-appx:///Assets/1.mp4" 
-        Height="200" 
-        Margin="0,10"/>
-
     </StackPanel>
 </Grid>
 </ScrollViewer>

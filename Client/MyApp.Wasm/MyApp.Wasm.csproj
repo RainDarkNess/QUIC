@@ -6,7 +6,8 @@
     <NoWarn>NU1701</NoWarn>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)'=='Debug'">
-    <MonoRuntimeDebuggerEnabled>true</MonoRuntimeDebuggerEnabled>
+	  <EnablePreviewFeatures>true</EnablePreviewFeatures>
+	  <MonoRuntimeDebuggerEnabled>true</MonoRuntimeDebuggerEnabled>
     <DefineConstants>$(DefineConstants);TRACE;DEBUG</DefineConstants>
     <DebugType>portable</DebugType>
     <DebugSymbols>true</DebugSymbols>
@@ -41,6 +42,7 @@
     <None Include="wwwroot\web.config" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="Emgu.CV" Version="4.9.0.5494" />
     <PackageReference Include="Microsoft.Windows.Compatibility" Version="5.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="5.0.0" />
     <PackageReference Include="Uno.Extensions.Logging.WebAssembly.Console" Version="1.4.0" />

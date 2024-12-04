@@ -90,8 +90,6 @@ X509Certificate2 CreateSelfSignedCertificate()
 		async void StartQuic_Click(object sender, RoutedEventArgs e){
 		
                 bool IsWorking = true;
-
-
                         String IpStr = IpText.Text;
                         String PortStr = PortText.Text;
                         String AllIpPort = IpStr+PortStr;

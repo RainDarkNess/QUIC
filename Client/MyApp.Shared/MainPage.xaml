@@ -15,17 +15,17 @@
                 <TextBlock x:Name="TextBoxStatus" Text="Статус." Width="1900" Height="15" Margin="10" FontSize="11" Foreground="White"/>
                 <TextBlock x:Name="StatusOfSend" Text="Статус..." Width="1900" Height="15" Margin="10" FontSize="11" Foreground="White"/>
                 <TextBlock x:Name="TextTypeText" Text="Тип отправки данных (напишите W для отправки текста F для отправки файла)" Width="1900" Height="15" Margin="10" FontSize="11" Foreground="White"/>
-                <TextBox x:Name="TextType" Text="f" Width="1900" Height="15" Margin="10" FontSize="11" Foreground="White" Background="#FF2D2D30"/>
+                <TextBox x:Name="TextType" Text="v" Width="1900" Height="15" Margin="10" FontSize="11" Foreground="White" Background="#FF2D2D30"/>
                 <TextBlock x:Name="TextPathText" Text="Путь до файла" Width="1900" Height="15" Margin="10" FontSize="11" Foreground="White"/>
-                <TextBox x:Name="TextPath" Text="./1.jpg" Width="1900" Height="15" Margin="10" FontSize="11" Foreground="White" Background="#FF2D2D30"/>
+                <TextBox x:Name="TextPath" Text="./1.mp4" Width="1900" Height="15" Margin="10" FontSize="11" Foreground="White" Background="#FF2D2D30"/>
                 <TextBlock x:Name="BlockSizeText" Text="Размер отправляемых блоков" Width="1900" Height="15" Margin="10" FontSize="11" Foreground="White"/>
                 <TextBox x:Name="BlockSize" Text="1024" Width="1900" Height="15" Margin="10" FontSize="11" Foreground="White" Background="#FF2D2D30"/>
                 <TextBlock x:Name="PeriodText" Text="Задержка потока отправки. Рекомендация оптимальной отправки данных: для QUIC поставить 0, для UDP поствить 2" Width="1900" Height="15" Margin="10" FontSize="11" Foreground="White"/>
                 <TextBox x:Name="Period" Text="2" Width="1900" Height="15" Margin="10" FontSize="11" Foreground="White" Background="#FF2D2D30"/>
                 <TextBlock x:Name="MethodSendType" Text="Метод отправки старый Old или новый New (Относится к QUIC)" Width="1900" Height="15" Margin="10" FontSize="11" Foreground="White"/>
                 <TextBox x:Name="MethodSend" Text="New" Width="1900" Height="15" Margin="10" FontSize="11" Foreground="White" Background="#FF2D2D30"/>
-                <TextBox x:Name="IpText" Text="ip." Width="1900" Height="15" Margin="10" FontSize="11" Foreground="White" Background="#FF2D2D30"/>
-                <TextBox x:Name="PortText" Text="port." Width="1900" Height="15" Margin="10" FontSize="11" Foreground="White" Background="#FF2D2D30"/>
+                <TextBox x:Name="IpText" Text="172.18.195.38:" Width="1900" Height="15" Margin="10" FontSize="11" Foreground="White" Background="#FF2D2D30"/>
+                <TextBox x:Name="PortText" Text="8001" Width="1900" Height="15" Margin="10" FontSize="11" Foreground="White" Background="#FF2D2D30"/>
 
                 <Button Content="Отправить пакет QUIC"
                         x:Name="QUICSend"
@@ -36,6 +36,11 @@
                         x:Name="UDPSend"
                         Style="{StaticResource MaterialElevatedButtonStyle}" 
                         Click="UDPSend_Click"/>
+
+                <Button Content="Остановить"
+                        x:Name="StopButton"
+                        Style="{StaticResource MaterialElevatedButtonStyle}" 
+                        Click="StopButton_Click"/>
 
                 <ListView x:Name="listwiew1">
                     <ListView.Items>
