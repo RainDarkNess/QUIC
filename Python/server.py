@@ -11,7 +11,10 @@ from aioquic.asyncio.protocol import QuicConnectionProtocol
 from aioquic.quic.configuration import QuicConfiguration
 from aioquic.quic.events import HandshakeCompleted, StreamDataReceived
 from pathlib import Path
+import time
 
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+from matplotlib.figure import Figure
 
 class EchoServerProtocol(QuicConnectionProtocol):
     def __init__(self, *args, **kwargs):
@@ -51,14 +54,27 @@ def UDPServer(app):
     count = 0
     print("Ожидание инфорации...")
 
+    app.update_count = 0
+    start_time = time.time()
+
+    app.time_graph = [0, 0, 0, 0, 0]
+    app.count_pack_graph = [0, 0, 0, 0, 0]
+
+    app.fig = Figure(figsize=(10, 4), dpi=100)
+    app.ax = app.fig.add_subplot(111)
+    app.line, = app.ax.plot(app.time_graph, app.count_pack_graph)
+    app.canvas = FigureCanvasTkAgg(app.fig, master=app.root)
+    app.canvas.get_tk_widget().pack()
+    loss_count = 0
     while app.is_working:
+        # count = count + 1
+        # elapsed_time = time.time() - start_time
+        # app.update_count = app.update_count + 1
         try:
             header = sock.recv(4)
             if not header:
                 break
-
             data_size = struct.unpack("!I", header)[0]
-
             jpg_as_text = b""
             while len(jpg_as_text) < data_size:
                 part = sock.recv(4096)
@@ -76,7 +92,15 @@ def UDPServer(app):
             if cv2.waitKey(1) & 0xFF == ord('q'):  # Нажмите 'q' для выхода
                 break
             count = count + 1
+
+            # if elapsed_time >= float(app.graph_speed_text.get("1.0", tk.END).replace('\n', '')):
+            #     threading.Thread(target=app.update_graph).start()
+            #     app.seconds = app.seconds + 1
+            #     app.update_count = 0
+            #     start_time = time.time()
+
         except Exception as e:
+            app.update_count = app.update_count + 1
             print(f"Потеря пакета (фрейма) №{count}.")
 
     if not app.is_working:
@@ -101,6 +125,10 @@ class VideoStreamApp:
         self.text_port_QUIC = tk.Text(root, height=1, width=20)
         self.text_port_QUIC.insert(tk.END, "6000")
 
+        self.graph_speed_label = ttk.Label(text="Скорость отрисовки графика")
+        self.graph_speed_text = tk.Text(root, height=1, width=20)
+        self.graph_speed_text.insert(tk.END, "1")
+
         self.UDP_port_label = ttk.Label(text="Порт для UDP")
         self.text_port_UDP = tk.Text(root, height=1, width=20)
         self.text_port_UDP.insert(tk.END, "6001")
@@ -120,10 +148,18 @@ class VideoStreamApp:
         self.text_port_UDP.pack(pady=10)
 
         self.start_button_QUIC.pack(pady=10)
-        self.start_button_UPD.pack(pady=10)
 
-        self.stop_button.pack(pady=10)
+        self.start_button_UPD.pack(pady=10)
+        self.graph_speed_label.pack(pady=5)
+        self.graph_speed_text.pack(pady=10)
+
+        # self.stop_button.pack(pady=10)
         self.quit_button.pack(pady=20)
+
+        self.time_graph = [0, 0, 0, 0, 0]
+        self.count_pack_graph = [0, 0, 0, 0, 0]
+        self.seconds = 0
+        self.update_count = 0
 
     def stop_server(self):
         self.label_server_UDP.pack_forget()
@@ -154,6 +190,16 @@ class VideoStreamApp:
         )
         while True:
             await asyncio.sleep(3600)
+
+    def update_graph(self):
+        self.time_graph.pop(0)
+        self.time_graph.append(self.seconds)
+        self.count_pack_graph.pop(0)
+        self.count_pack_graph.append(self.update_count)
+        self.line, = self.ax.plot(self.time_graph, self.count_pack_graph)
+        self.line.set_xdata(self.time_graph)
+        self.line.set_ydata(self.count_pack_graph)
+        self.canvas.draw()
 
     def run_client_thread_QUIC(self):
         asyncio.run(self.run_stream_QUIC())

@@ -14,11 +14,14 @@ import tkinter as tk
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
 
+global quality
+
 
 class ClientProtocol(QuicConnectionProtocol):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._stream_id = None
+        self.frame_quality = 0
 
     def quic_event_received(self, event):
         if isinstance(event, HandshakeCompleted):
@@ -37,6 +40,15 @@ class ClientProtocol(QuicConnectionProtocol):
         asyncio.create_task(self.send_video_frames())
 
     async def send_video_frames(self):
+        def compress_frame(frame, quality=90):
+            encode_param = [int(cv2.IMWRITE_JPEG_QUALITY), quality]
+            success, buffer = cv2.imencode('.jpg', frame, encode_param)
+
+            if not success:
+                print("Ошибка при кодировании изображения.")
+
+            return buffer
+
         MAX_UDP_SIZE = 1400
         cap = cv2.VideoCapture('1.mp4')
         if not cap.isOpened():
@@ -47,8 +59,10 @@ class ClientProtocol(QuicConnectionProtocol):
             if not ret:
                 print("End of video stream or error reading frame.")
                 break
+            global quality
 
             success, buffer = cv2.imencode('.jpg', frame)
+            buffer = compress_frame(frame, quality=quality)
             if not success:
                 print("Failed to encode frame.")
                 continue
@@ -110,33 +124,42 @@ async def run_stream_UDP(app):
             break
 
         _, buffer = cv2.imencode('.jpg', frame)
-
+        # buffer = compress_frame(frame, 10)
         data_size = struct.pack("!I", len(buffer))
         sock.sendto(data_size, (UDP_IP, UDP_PORT))
 
         MAX_UDP_SIZE = 1400
 
         for i in range(0, len(buffer), MAX_UDP_SIZE):
-            elapsed_time = time.time() - start_time
-            app.update_count = app.update_count + 1
-            count = count + 1
-            try:
-                if elapsed_time >= float(app.graph_speed_text.get("1.0", tk.END).replace('\n', '')):
-                    threading.Thread(target=app.update_graph).start()
-                    start_time = time.time()
-            except Exception:
-                pass
             sock.sendto(buffer[i:i + MAX_UDP_SIZE], (UDP_IP, UDP_PORT))
-            if app.delay_on:
+
+            if app.toggles[1]:
+                elapsed_time = time.time() - start_time
+                app.update_count = app.update_count + 1
+                count = count + 1
+                try:
+                    if elapsed_time >= float(app.graph_speed_text.get("1.0", tk.END).replace('\n', '')):
+                        threading.Thread(target=app.update_graph).start()
+                        app.label_technical_UDP.config(
+                            text=f"Пакетов в {app.graph_speed_text.get("1.0", tk.END).replace('\n', '')} от одной секунды: {app.update_count}")
+                        app.seconds = app.seconds + 1
+                        app.update_count = 0
+                        start_time = time.time()
+                except Exception:
+                    pass
+
+            if app.toggles[0]:
                 await asyncio.sleep(0)
-                print("UDP отправло сообщение: ", buffer[i])
-                print("Номер сообщения: ", count)
+                # print("UDP отправло сообщение: ", buffer[i])
+                # print("Номер сообщения: ", count)
         await asyncio.sleep(delay_seconds)
     cap.release()
 
 
 class VideoStreamApp:
     def __init__(self, root):
+        global quality
+        quality = 90
         self.root = root
         self.root.title("Клиент UDP/QUIC")
         self.root.geometry("1200x720")
@@ -170,18 +193,38 @@ class VideoStreamApp:
         self.start_button_UPD = ttk.Button(text="Начать стрим на UDP", command=self.start_video_stream_UDP)
         self.stop_button = tk.Button(root, text="Остановить поток", command=self.stop_stream)
         self.is_working = True
-        self.quit_button = tk.Button(root, text="Quit", command=root.quit)
+        self.quality_set = tk.Button(root, text="Изменить качество", command=self.quality_set)
 
-        self.toggle_button = tk.Button(root, text="Выключить", bg="green", fg="white", command=self.toggle_function)
-        self.delay_on = True
+        self.quit_button = tk.Button(root, text="Quit", command=root.quit)
+        self.toggles = [True, True]
+        self.toggle_button = tk.Button(root, text="Выключить", bg="green", fg="white",
+                                       command=lambda: self.toggle_function(0, self.delay_on_off_label,
+                                                                            self.toggle_button,
+                                                                            "Задержка между отправкой пакетов: "))
+
         self.delay_on_off_label = ttk.Label(text=f"Задержка между отправкой пакетов: включена")
+
+        self.toggle_graph_label = ttk.Label(
+            text="Включить или выключить обновление графика (для увеличения производительности)")
+        self.toggle_graph = tk.Button(root, text="Выключить график", bg="green", fg="white",
+                                      command=lambda: self.toggle_function(1, self.toggle_graph_label,
+                                                                           self.toggle_graph,
+                                                                           "Отрисовка состояния отправки (значительно повышает скорость загрузки): "))
 
         self.graph_speed_label = ttk.Label(text="Скорость отрисовки графика")
         self.graph_speed_text = tk.Text(root, height=1, width=20)
         self.graph_speed_text.insert(tk.END, "1")
 
+        self.compress_quality_label = ttk.Label(
+            text="Уровень сжатия отправляемого изображения (для QUIC 10 - плохое качество; 90 - хорошее)")
+        self.compress_quality_text = tk.Text(root, height=1, width=20)
+        self.compress_quality_text.insert(tk.END, "90")
+
         self.ip_adr_label.pack(pady=5)
         self.text_ip_server.pack(pady=10)
+
+        self.path_label.pack(pady=5)
+        self.path_text.pack(pady=10)
 
         self.QUIC_port_label.pack(pady=5, side='right', padx=50)
         self.text_port_QUIC.pack(pady=10, side='right', padx=10)
@@ -197,14 +240,17 @@ class VideoStreamApp:
         self.graph_speed_label.pack(pady=5)
         self.graph_speed_text.pack(pady=10)
 
-        self.path_label.pack(pady=5)
-        self.path_text.pack(pady=10)
+        self.compress_quality_label.pack(pady=5)
+        self.compress_quality_text.pack(pady=10)
+        self.quality_set.pack(pady=10)
+
+        self.toggle_graph_label.pack(pady=5)
+        self.toggle_graph.pack(pady=10)
 
         self.delay_on_off_label.pack(pady=5)
         self.toggle_button.pack(pady=10)
         self.stop_button.pack(pady=10)
         self.quit_button.pack(pady=20)
-
         self.time_graph = [0, 0, 0, 0, 0]
         self.count_pack_graph = [0, 0, 0, 0, 0]
         self.seconds = 0
@@ -213,30 +259,27 @@ class VideoStreamApp:
     def update_graph(self):
         self.time_graph.pop(0)
         self.time_graph.append(self.seconds)
-
         self.count_pack_graph.pop(0)
         self.count_pack_graph.append(self.update_count)
-
         self.line, = self.ax.plot(self.time_graph, self.count_pack_graph)
         self.line.set_xdata(self.time_graph)
         self.line.set_ydata(self.count_pack_graph)
         self.canvas.draw()
-        self.label_technical_UDP.config(
-            text=f"Пакетов в {self.graph_speed_text.get("1.0", tk.END).replace('\n', '')} от одной секунды: {self.update_count}")
-        self.seconds = app.seconds + 1
-        self.update_count = 0
 
-    def toggle_function(self):
-        if self.toggle_button.config('bg')[-1] == 'red':
-            self.toggle_button.config(bg='green',
-                                      text='Выключить')
-            self.delay_on = True
+    def quality_set(self):
+        global quality
+        quality = int(self.compress_quality_text.get("1.0", tk.END).replace('\n', ''))
+
+    def toggle_function(self, toggle_id, label, button, label_text):
+        if button.config('bg')[-1] == 'red':
+            button.config(bg='green', text='Выключить')
+            self.toggles[toggle_id] = True
 
         else:
-            self.toggle_button.config(bg='red', text='Включить')
-            self.delay_on = False
-        delay_label = "включена" if self.delay_on else "выключена"
-        self.delay_on_off_label.config(text=f"Задержка между отправкой пакетов: {delay_label}")
+            button.config(bg='red', text='Включить')
+            self.toggles[toggle_id] = False
+        delay_label = "включена" if self.toggles[toggle_id] else "выключена"
+        label.config(text=f"{label_text}: {delay_label}")
 
     def start_video_stream_QUIC(self):
         self.start_button_QUIC.config(state=tk.DISABLED)
