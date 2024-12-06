@@ -1,12 +1,44 @@
-﻿import asyncio
-import socket
-import struct
+﻿import socket
 import threading
 from tkinter import ttk
-
-import numpy as np
-import cv2
 import tkinter as tk
+import asyncio
+import struct
+import cv2
+import numpy as np
+from aioquic.asyncio import serve
+from aioquic.asyncio.protocol import QuicConnectionProtocol
+from aioquic.quic.configuration import QuicConfiguration
+from aioquic.quic.events import HandshakeCompleted, StreamDataReceived
+from pathlib import Path
+
+
+class EchoServerProtocol(QuicConnectionProtocol):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.buffer = b""
+
+    def quic_event_received(self, event):
+        if isinstance(event, HandshakeCompleted):
+            print("Handshake completed.")
+        elif isinstance(event, StreamDataReceived):
+            self.buffer += event.data
+
+            while len(self.buffer) >= 4:
+                data_size = struct.unpack("!I", self.buffer[:4])[0]
+
+                if len(self.buffer) < data_size + 4:
+                    break
+                jpg_as_text = self.buffer[4:4 + data_size]
+                self.buffer = self.buffer[4 + data_size:]  # Очищаем буфер
+
+                jpg_as_np = np.frombuffer(jpg_as_text, dtype=np.uint8)
+                frame = cv2.imdecode(jpg_as_np, flags=cv2.IMREAD_COLOR)
+
+                if frame is not None:
+                    cv2.imshow('Receiver', frame)
+                    if cv2.waitKey(1) & 0xFF == ord('q'):  # Нажмите 'q' для выхода
+                        break
 
 
 def UDPServer(app):
@@ -58,7 +90,7 @@ class VideoStreamApp:
         self.root.title("Сервер UPD/QUIC")
         self.root.geometry("1200x720")
         root.title("Сервер UPD/QUIC")
-        # self.start_button_QUIC = ttk.Button(text="Запустить сервер QUIC", command=self.start_video_stream_QUIC)
+        self.start_button_QUIC = ttk.Button(text="Запустить сервер QUIC", command=self.start_video_stream_QUIC)
         self.ip_adr_label = ttk.Label(
             text="IP адрес сервера")
         self.label_server_QUIC = ttk.Label(text="Работает сервер на QUIC")
@@ -87,7 +119,7 @@ class VideoStreamApp:
         self.UDP_port_label.pack(pady=5)
         self.text_port_UDP.pack(pady=10)
 
-        # self.start_button_QUIC.pack(pady=10)
+        self.start_button_QUIC.pack(pady=10)
         self.start_button_UPD.pack(pady=10)
 
         self.stop_button.pack(pady=10)
@@ -95,20 +127,38 @@ class VideoStreamApp:
 
     def stop_server(self):
         self.label_server_UDP.pack_forget()
+        self.label_server_QUIC.pack_forget()
         self.is_working = False
 
-    # def start_video_stream_QUIC(self):
-    #     # self.start_button_QUIC.config(state=tk.DISABLED)  # Отключаем кнопку
-    #     print("Начинается стрим на QUIC...")
-    #     self.is_working = True
-    #     threading.Thread(target=self.run_client_thread_QUIC).start()
-    #
-    # def run_client_thread_QUIC(self):
-    #     asyncio.run(run_stream_QUIC(self.text_ip_server.get("1.0", tk.END).replace('\n', ''),
-    #                                 int(self.text_port_QUIC.get("1.0", tk.END).replace('\n', ''))))
+    def start_video_stream_QUIC(self):
+        print("Начинается стрим на QUIC...")
+        self.is_working = True
+        threading.Thread(target=self.run_client_thread_QUIC).start()
+
+    async def run_stream_QUIC(self):
+        # Настройки сертификата и ключа
+        configuration = QuicConfiguration(is_client=False)
+        self.label_server_QUIC.pack(pady=10)
+        certfile = Path('tests/ssl_cert.pem')
+        keyfile = Path('tests/ssl_key.pem')
+        configuration.load_cert_chain(certfile=certfile, keyfile=keyfile)
+        session_ticket_store = {}
+        await serve(
+            self.text_ip_server.get("1.0", tk.END).replace('\n', ''),
+            int(self.text_port_QUIC.get("1.0", tk.END).replace('\n', '')),
+            configuration=configuration,
+            create_protocol=EchoServerProtocol,
+            session_ticket_fetcher=session_ticket_store.pop if session_ticket_store else None,
+            session_ticket_handler=session_ticket_store.setdefault if session_ticket_store else None,
+            retry=True
+        )
+        while True:
+            await asyncio.sleep(3600)
+
+    def run_client_thread_QUIC(self):
+        asyncio.run(self.run_stream_QUIC())
 
     def start_video_stream_UDP(self):
-        # self.start_button_UPD.config(state=tk.DISABLED)  # Отключаем кнопку
         print("Начинается стрим на UDP...")
         self.label_server_UDP.pack(pady=10)
         self.is_working = True

@@ -5,8 +5,6 @@ from tkinter import ttk
 import socket
 import cv2
 import struct
-
-import numpy as np
 from aioquic.asyncio import connect
 from aioquic.quic.configuration import QuicConfiguration
 from aioquic.asyncio.protocol import QuicConnectionProtocol
@@ -20,70 +18,62 @@ from matplotlib.figure import Figure
 class ClientProtocol(QuicConnectionProtocol):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self._stream_id = None  # Идентификатор потока
+        self._stream_id = None
 
     def quic_event_received(self, event):
         if isinstance(event, HandshakeCompleted):
             print("Handshake completed.")
-            self.start_video_stream()  # Начинаем потоковое видео
+            self.start_video_stream()
 
         elif isinstance(event, StreamDataReceived):
             data = event.data
             print(f"Received: {data}")
 
-    def start_video_stream(self, video_path='1.mp4'):
-        video_path = video_path
-        cap = cv2.VideoCapture(video_path)
+    def start_video_stream(self):
 
+        self._stream_id = self._quic.get_next_available_stream_id()
+        print(f"Using stream ID: {self._stream_id}")
+
+        asyncio.create_task(self.send_video_frames())
+
+    async def send_video_frames(self):
+        MAX_UDP_SIZE = 1400
+        cap = cv2.VideoCapture('1.mp4')
         if not cap.isOpened():
             print("Error: Could not open video file.")
             exit()
-
-        self._stream_id = self._quic.get_next_available_stream_id()  # Получаем новый поток
-        print(f"Using stream ID: {self._stream_id}")
-
-        asyncio.create_task(self.send_video_frames(cap))  # Запускаем задачу отправки видео
-
-    async def send_video_frames(self, cap):
-        MAX_UDP_SIZE = 1400
-
         while True:
             ret, frame = cap.read()
             if not ret:
                 print("End of video stream or error reading frame.")
                 break
 
-            # Кодируем кадр в формат JPEG
             success, buffer = cv2.imencode('.jpg', frame)
             if not success:
                 print("Failed to encode frame.")
                 continue
 
-            # Преобразуем в байты
             data_bytes = buffer.tobytes()
 
-            # Отправляем размер данных
             data_size = struct.pack("!I", len(data_bytes))
             self._quic.send_stream_data(self._stream_id, data_size)
-
-            # Отправляем данные в сегментах
             for i in range(0, len(data_bytes), MAX_UDP_SIZE):
                 segment = data_bytes[i:i + MAX_UDP_SIZE]
                 self._quic.send_stream_data(self._stream_id, segment)
-
-        # Закрываем поток
+            await asyncio.sleep(0.03)
         self._quic.send_stream_data(self._stream_id, b'', end_stream=True)
         cap.release()
         print("Video stream has ended.")
 
 
-async def run_stream_QUIC(ip='127.0.0.1', port=6000):
+async def run_stream_QUIC(app):
+    ip = app.text_ip_server.get("1.0", tk.END).replace('\n', '')
+    port = int(app.text_port_QUIC.get("1.0", tk.END).replace('\n', ''))
     configuration = QuicConfiguration(is_client=True)
-    configuration.verify_mode = False  # Отключение проверки сертификата
+    configuration.verify_mode = False
 
     async with connect(ip, port, configuration=configuration, create_protocol=ClientProtocol) as protocol:
-        # Ожидаем, пока данные не будут получены
-        await asyncio.sleep(10)  # Долгое ожидание для получения ответа
+        await asyncio.sleep(1000)
 
 
 async def run_stream_UDP(app):
@@ -132,10 +122,7 @@ async def run_stream_UDP(app):
             count = count + 1
             try:
                 if elapsed_time >= float(app.graph_speed_text.get("1.0", tk.END).replace('\n', '')):
-                    app.label_technical_UDP.config(text=f"Пакетов в {app.graph_speed_text.get("1.0", tk.END).replace('\n', '')} от одной секунды: {app.update_count}")
-                    app.seconds = app.seconds + 1
                     threading.Thread(target=app.update_graph).start()
-                    app.update_count = 0
                     start_time = time.time()
             except Exception:
                 pass
@@ -234,6 +221,10 @@ class VideoStreamApp:
         self.line.set_xdata(self.time_graph)
         self.line.set_ydata(self.count_pack_graph)
         self.canvas.draw()
+        self.label_technical_UDP.config(
+            text=f"Пакетов в {self.graph_speed_text.get("1.0", tk.END).replace('\n', '')} от одной секунды: {self.update_count}")
+        self.seconds = app.seconds + 1
+        self.update_count = 0
 
     def toggle_function(self):
         if self.toggle_button.config('bg')[-1] == 'red':
@@ -248,24 +239,25 @@ class VideoStreamApp:
         self.delay_on_off_label.config(text=f"Задержка между отправкой пакетов: {delay_label}")
 
     def start_video_stream_QUIC(self):
-        # self.start_button_QUIC.config(state=tk.DISABLED)  # Отключаем кнопку
+        self.start_button_QUIC.config(state=tk.DISABLED)
         print("Начинается стрим на QUIC...")
         self.is_working = True
         threading.Thread(target=self.run_client_thread_QUIC).start()
 
     def stop_stream(self):
         self.is_working = False
+        self.start_button_UPD.config(state=tk.ACTIVE)
+        self.start_button_QUIC.config(state=tk.ACTIVE)
         self.label_server_UDP.pack_forget()
         self.label_server_QUIC.pack_forget()
         self.label_technical_UDP.pack_forget()
 
     def run_client_thread_QUIC(self):
-        asyncio.run(run_stream_QUIC(self.text_ip_server.get("1.0", tk.END).replace('\n', ''),
-                                    int(self.text_port_QUIC.get("1.0", tk.END).replace('\n', ''))))
+        asyncio.run(run_stream_QUIC(self))
 
     def start_video_stream_UDP(self):
-        # self.start_button_UPD.config(state=tk.DISABLED)  # Отключаем кнопку
         print("Начинается стрим на UDP...")
+        self.start_button_UPD.config(state=tk.DISABLED)
         self.label_server_UDP.pack(pady=10)
         self.label_technical_UDP.pack(pady=5)
         self.is_working = True
