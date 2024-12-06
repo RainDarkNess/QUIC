@@ -100,19 +100,19 @@ async def run_stream_UDP(app):
         print("Видео не найдено.")
         exit()
 
-    update_count = 0
+    app.update_count = 0
     start_time = time.time()
 
-    time_graph = [0, 0, 0, 0, 0]
-    count_pack_graph = [0, 0, 0, 0, 0]
+    app.time_graph = [0, 0, 0, 0, 0]
+    app.count_pack_graph = [0, 0, 0, 0, 0]
 
-    app.fig = Figure(figsize=(5, 4), dpi=100)
+    app.fig = Figure(figsize=(10, 4), dpi=100)
     app.ax = app.fig.add_subplot(111)
-    app.line, = app.ax.plot([], [])
+    app.line, = app.ax.plot(app.time_graph, app.count_pack_graph)
     app.canvas = FigureCanvasTkAgg(app.fig, master=app.root)
     app.canvas.get_tk_widget().pack()
 
-    # app.update_graph()
+    app.seconds = 0
     while app.is_working:
         ret, frame = cap.read()
         if not ret:
@@ -128,22 +128,17 @@ async def run_stream_UDP(app):
 
         for i in range(0, len(buffer), MAX_UDP_SIZE):
             elapsed_time = time.time() - start_time
-            update_count = update_count + 1
+            app.update_count = app.update_count + 1
             count = count + 1
-            if elapsed_time >= 1:
-                app.label_technical_UDP.config(text=f"Пакетов в секунду: {update_count}")
-                time_graph.pop(0)
-                time_graph.append(update_count)
-
-                count_pack_graph.pop(0)
-                count_pack_graph.append(time.time())
-                update_count = 0
-                start_time = time.time()
-                app.line.set_xdata(time_graph)
-                app.line.set_ydata(count_pack_graph)
-
-                app.canvas.draw()
-
+            try:
+                if elapsed_time >= float(app.graph_speed_text.get("1.0", tk.END).replace('\n', '')):
+                    app.label_technical_UDP.config(text=f"Пакетов в {app.graph_speed_text.get("1.0", tk.END).replace('\n', '')} от одной секунды: {app.update_count}")
+                    app.seconds = app.seconds + 1
+                    threading.Thread(target=app.update_graph).start()
+                    app.update_count = 0
+                    start_time = time.time()
+            except Exception:
+                pass
             sock.sendto(buffer[i:i + MAX_UDP_SIZE], (UDP_IP, UDP_PORT))
             if app.delay_on:
                 await asyncio.sleep(0)
@@ -158,7 +153,7 @@ class VideoStreamApp:
         self.root = root
         self.root.title("Клиент UDP/QUIC")
         self.root.geometry("1200x720")
-        root.title("Клиент UDP/QUIC")
+
         self.start_button_QUIC = ttk.Button(text="Начать стрим на QUIC", command=self.start_video_stream_QUIC)
         self.ip_adr_label = ttk.Label(
             text="IP адрес сервера")
@@ -194,28 +189,51 @@ class VideoStreamApp:
         self.delay_on = True
         self.delay_on_off_label = ttk.Label(text=f"Задержка между отправкой пакетов: включена")
 
+        self.graph_speed_label = ttk.Label(text="Скорость отрисовки графика")
+        self.graph_speed_text = tk.Text(root, height=1, width=20)
+        self.graph_speed_text.insert(tk.END, "1")
+
         self.ip_adr_label.pack(pady=5)
         self.text_ip_server.pack(pady=10)
 
-        self.QUIC_port_label.pack(pady=5)
-        self.text_port_QUIC.pack(pady=10)
+        self.QUIC_port_label.pack(pady=5, side='right', padx=50)
+        self.text_port_QUIC.pack(pady=10, side='right', padx=10)
+        self.start_button_QUIC.pack(pady=10, side='right', padx=10)
 
-        self.UDP_port_label.pack(pady=5)
-        self.text_port_UDP.pack(pady=10)
+        self.UDP_port_label.pack(pady=5, side='left', padx=50)
+        self.text_port_UDP.pack(pady=10, side='left', padx=10)
+        self.start_button_UPD.pack(pady=10, side='left', padx=10)
 
         self.delay_label.pack(pady=5)
         self.delay_text.pack(pady=10)
 
+        self.graph_speed_label.pack(pady=5)
+        self.graph_speed_text.pack(pady=10)
+
         self.path_label.pack(pady=5)
         self.path_text.pack(pady=10)
-
-        self.start_button_QUIC.pack(pady=10)
-        self.start_button_UPD.pack(pady=10)
 
         self.delay_on_off_label.pack(pady=5)
         self.toggle_button.pack(pady=10)
         self.stop_button.pack(pady=10)
         self.quit_button.pack(pady=20)
+
+        self.time_graph = [0, 0, 0, 0, 0]
+        self.count_pack_graph = [0, 0, 0, 0, 0]
+        self.seconds = 0
+        self.update_count = 0
+
+    def update_graph(self):
+        self.time_graph.pop(0)
+        self.time_graph.append(self.seconds)
+
+        self.count_pack_graph.pop(0)
+        self.count_pack_graph.append(self.update_count)
+
+        self.line, = self.ax.plot(self.time_graph, self.count_pack_graph)
+        self.line.set_xdata(self.time_graph)
+        self.line.set_ydata(self.count_pack_graph)
+        self.canvas.draw()
 
     def toggle_function(self):
         if self.toggle_button.config('bg')[-1] == 'red':
@@ -251,6 +269,15 @@ class VideoStreamApp:
         self.label_server_UDP.pack(pady=10)
         self.label_technical_UDP.pack(pady=5)
         self.is_working = True
+
+        self.time_graph = [0, 0, 0, 0, 0]
+        self.count_pack_graph = [0, 0, 0, 0, 0]
+        self.seconds = 0
+        self.update_count = 0
+        try:
+            self.canvas.get_tk_widget().pack_forget()
+        except:
+            print("e")
         threading.Thread(target=self.run_client_thread_UDP).start()
 
     def run_client_thread_UDP(self):
