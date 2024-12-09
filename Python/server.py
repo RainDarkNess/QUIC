@@ -20,10 +20,11 @@ class EchoServerProtocol(QuicConnectionProtocol):
 
     def quic_event_received(self, event):
         if isinstance(event, HandshakeCompleted):
+            # Событие рукопажатия
             print("Handshake completed.")
         elif isinstance(event, StreamDataReceived):
             self.buffer += event.data
-
+            # Выполнение после собтия рукопажатия (отрисовка данных)
             while len(self.buffer) >= 4:
                 data_size = struct.unpack("!I", self.buffer[:4])[0]
 
@@ -42,6 +43,7 @@ class EchoServerProtocol(QuicConnectionProtocol):
 
 
 def UDPServer(app):
+    # Принятие потока данных от клиента
     UDP_IP = app.text_ip_server.get("1.0", tk.END).replace('\n', '')
     UDP_PORT = int(app.text_port_UDP.get("1.0", tk.END).replace('\n', ''))
 
@@ -49,24 +51,8 @@ def UDPServer(app):
     sock.bind((UDP_IP, UDP_PORT))
 
     print("Ожидание инфорации...")
-
-    # app.update_count = 0
-    # start_time = time.time()
-
-    # app.time_graph = [0, 0, 0, 0, 0]
-    # app.count_pack_graph = [0, 0, 0, 0, 0]
-    #
-    # app.fig = Figure(figsize=(10, 4), dpi=100)
-    # app.ax = app.fig.add_subplot(111)
-    # app.line, = app.ax.plot(app.time_graph, app.count_pack_graph)
-    # app.canvas = FigureCanvasTkAgg(app.fig, master=app.root)
-    # app.canvas.get_tk_widget().pack()
-    # threading.Thread(target=app.update_graph).start()
     count = 0
     while app.is_working:
-        count = count + 1
-        # elapsed_time = time.time() - start_time
-        # app.update_count = app.update_count + 1
         try:
             header = sock.recv(4)
             if not header:
@@ -88,13 +74,7 @@ def UDPServer(app):
 
             if cv2.waitKey(1) & 0xFF == ord('q'):  # Нажмите 'q' для выхода
                 break
-            # count = count + 1
-
-            # if elapsed_time >= float(app.graph_speed_text.get("1.0", tk.END).replace('\n', '')):
-            #     threading.Thread(target=app.update_graph).start()
-            # app.seconds = app.seconds + 1
-            # app.update_count = 0
-            # start_time = time.time()
+            count = count + 1
 
         except Exception as e:
             app.update_count = app.update_count + 1

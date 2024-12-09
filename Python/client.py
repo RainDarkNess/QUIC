@@ -25,6 +25,7 @@ class ClientProtocol(QuicConnectionProtocol):
 
     def quic_event_received(self, event):
         if isinstance(event, HandshakeCompleted):
+            # Рукопажатие
             print("Handshake completed.")
             self.start_video_stream()
 
@@ -41,6 +42,7 @@ class ClientProtocol(QuicConnectionProtocol):
 
     async def send_video_frames(self):
         def compress_frame(frame, quality=90):
+            # Функция сжатия изображения для QUIC
             encode_param = [int(cv2.IMWRITE_JPEG_QUALITY), quality]
             success, buffer = cv2.imencode('.jpg', frame, encode_param)
 
@@ -88,12 +90,13 @@ async def run_stream_QUIC(app):
     port = int(app.text_port_QUIC.get("1.0", tk.END).replace('\n', ''))
     configuration = QuicConfiguration(is_client=True)
     configuration.verify_mode = False
-
+    # Сборка конфигурации QUIC
     async with connect(ip, port, configuration=configuration, create_protocol=ClientProtocol) as protocol:
         await asyncio.sleep(1000)
 
 
 async def run_stream_UDP(app):
+    # Сам стрим отправки данных на сервер
     UDP_IP = app.text_ip_server.get("1.0", tk.END).replace('\n', '')
     UDP_PORT = int(app.text_port_UDP.get("1.0", tk.END).replace('\n', ''))
 
@@ -110,6 +113,7 @@ async def run_stream_UDP(app):
     app.update_count = 0
     start_time = time.time()
 
+    # Зарисовывание шаблона графика
     app.time_graph = [0, 0, 0, 0, 0]
     app.count_pack_graph = [0, 0, 0, 0, 0]
 
@@ -121,6 +125,7 @@ async def run_stream_UDP(app):
 
     app.seconds = 0
     while app.is_working:
+        # Считывание видео как потока кадров
         ret, frame = cap.read()
         if not ret:
             print("End of video stream or error reading frame.")
@@ -134,6 +139,7 @@ async def run_stream_UDP(app):
         MAX_UDP_SIZE = 1400
 
         for i in range(0, len(buffer), MAX_UDP_SIZE):
+            # Поток данных отправки кадра
             sock.sendto(buffer[i:i + MAX_UDP_SIZE], (UDP_IP, UDP_PORT))
 
             if app.toggles[1]:
@@ -162,6 +168,8 @@ async def run_stream_UDP(app):
 class VideoStreamApp:
     def __init__(self, root):
         global quality, QUIC_On_Off
+
+        # Объявление GUI и всех элементов
         quality = 90
         self.root = root
         self.root.title("Клиент UDP/QUIC")
@@ -223,6 +231,7 @@ class VideoStreamApp:
         self.compress_quality_text = tk.Text(root, height=1, width=20)
         self.compress_quality_text.insert(tk.END, "90")
 
+        # Раставление элементов GUI
         self.ip_adr_label.pack(pady=5)
         self.text_ip_server.pack(pady=10)
 
@@ -260,6 +269,8 @@ class VideoStreamApp:
         self.update_count = 0
 
     def update_graph(self):
+
+        # Обновление графика
         self.time_graph.pop(0)
         self.time_graph.append(self.seconds)
         self.count_pack_graph.pop(0)
@@ -270,10 +281,12 @@ class VideoStreamApp:
         self.canvas.draw()
 
     def quality_set(self):
+        # Выставление качества для QUIC
         global quality
         quality = int(self.compress_quality_text.get("1.0", tk.END).replace('\n', ''))
 
     def toggle_function(self, toggle_id, label, button, label_text):
+        # Переключатели
         if button.config('bg')[-1] == 'red':
             button.config(bg='green', text='Выключить')
             self.toggles[toggle_id] = True
@@ -285,6 +298,7 @@ class VideoStreamApp:
         label.config(text=f"{label_text}: {delay_label}")
 
     def start_video_stream_QUIC(self):
+        # Функция начала стрима на QUIC
         self.start_button_QUIC.config(state=tk.DISABLED)
         print("Начинается стрим на QUIC...")
         global QUIC_On_Off
@@ -292,6 +306,7 @@ class VideoStreamApp:
         threading.Thread(target=self.run_client_thread_QUIC).start()
 
     def stop_stream(self):
+        # Остановка всех стримов
         global QUIC_On_Off
         QUIC_On_Off = True
         self.is_working = False
@@ -303,9 +318,11 @@ class VideoStreamApp:
 
 
     def run_client_thread_QUIC(self):
+        # Начало стрима на QUIC
         asyncio.run(run_stream_QUIC(self))
 
     def start_video_stream_UDP(self):
+        # Начало стрима на UDP
         print("Начинается стрим на UDP...")
         self.start_button_UPD.config(state=tk.DISABLED)
         self.label_server_UDP.pack(pady=10)
