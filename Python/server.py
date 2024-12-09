@@ -11,10 +11,7 @@ from aioquic.asyncio.protocol import QuicConnectionProtocol
 from aioquic.quic.configuration import QuicConfiguration
 from aioquic.quic.events import HandshakeCompleted, StreamDataReceived
 from pathlib import Path
-import time
 
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-from matplotlib.figure import Figure
 
 class EchoServerProtocol(QuicConnectionProtocol):
     def __init__(self, *args, **kwargs):
@@ -51,23 +48,23 @@ def UDPServer(app):
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     sock.bind((UDP_IP, UDP_PORT))
 
-    count = 0
     print("Ожидание инфорации...")
 
-    app.update_count = 0
-    start_time = time.time()
+    # app.update_count = 0
+    # start_time = time.time()
 
-    app.time_graph = [0, 0, 0, 0, 0]
-    app.count_pack_graph = [0, 0, 0, 0, 0]
-
-    app.fig = Figure(figsize=(10, 4), dpi=100)
-    app.ax = app.fig.add_subplot(111)
-    app.line, = app.ax.plot(app.time_graph, app.count_pack_graph)
-    app.canvas = FigureCanvasTkAgg(app.fig, master=app.root)
-    app.canvas.get_tk_widget().pack()
-    loss_count = 0
+    # app.time_graph = [0, 0, 0, 0, 0]
+    # app.count_pack_graph = [0, 0, 0, 0, 0]
+    #
+    # app.fig = Figure(figsize=(10, 4), dpi=100)
+    # app.ax = app.fig.add_subplot(111)
+    # app.line, = app.ax.plot(app.time_graph, app.count_pack_graph)
+    # app.canvas = FigureCanvasTkAgg(app.fig, master=app.root)
+    # app.canvas.get_tk_widget().pack()
+    # threading.Thread(target=app.update_graph).start()
+    count = 0
     while app.is_working:
-        # count = count + 1
+        count = count + 1
         # elapsed_time = time.time() - start_time
         # app.update_count = app.update_count + 1
         try:
@@ -91,13 +88,13 @@ def UDPServer(app):
 
             if cv2.waitKey(1) & 0xFF == ord('q'):  # Нажмите 'q' для выхода
                 break
-            count = count + 1
+            # count = count + 1
 
             # if elapsed_time >= float(app.graph_speed_text.get("1.0", tk.END).replace('\n', '')):
             #     threading.Thread(target=app.update_graph).start()
-            #     app.seconds = app.seconds + 1
-            #     app.update_count = 0
-            #     start_time = time.time()
+            # app.seconds = app.seconds + 1
+            # app.update_count = 0
+            # start_time = time.time()
 
         except Exception as e:
             app.update_count = app.update_count + 1
@@ -153,7 +150,6 @@ class VideoStreamApp:
         self.graph_speed_label.pack(pady=5)
         self.graph_speed_text.pack(pady=10)
 
-        # self.stop_button.pack(pady=10)
         self.quit_button.pack(pady=20)
 
         self.time_graph = [0, 0, 0, 0, 0]

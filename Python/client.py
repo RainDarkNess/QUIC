@@ -14,7 +14,7 @@ import tkinter as tk
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
 
-global quality
+global quality, QUIC_On_Off
 
 
 class ClientProtocol(QuicConnectionProtocol):
@@ -59,24 +59,27 @@ class ClientProtocol(QuicConnectionProtocol):
             if not ret:
                 print("End of video stream or error reading frame.")
                 break
-            global quality
+            global quality, QUIC_On_Off
+            if QUIC_On_Off:
+                self._quic.send_stream_data(self._stream_id, b'', end_stream=True)
+                cap.release()
+            else:
+                success, buffer = cv2.imencode('.jpg', frame)
+                buffer = compress_frame(frame, quality=quality)
+                if not success:
+                    print("Failed to encode frame.")
+                    continue
 
-            success, buffer = cv2.imencode('.jpg', frame)
-            buffer = compress_frame(frame, quality=quality)
-            if not success:
-                print("Failed to encode frame.")
-                continue
+                data_bytes = buffer.tobytes()
 
-            data_bytes = buffer.tobytes()
-
-            data_size = struct.pack("!I", len(data_bytes))
-            self._quic.send_stream_data(self._stream_id, data_size)
-            for i in range(0, len(data_bytes), MAX_UDP_SIZE):
-                segment = data_bytes[i:i + MAX_UDP_SIZE]
-                self._quic.send_stream_data(self._stream_id, segment)
-            await asyncio.sleep(0.03)
-        self._quic.send_stream_data(self._stream_id, b'', end_stream=True)
-        cap.release()
+                data_size = struct.pack("!I", len(data_bytes))
+                self._quic.send_stream_data(self._stream_id, data_size)
+                for i in range(0, len(data_bytes), MAX_UDP_SIZE):
+                    segment = data_bytes[i:i + MAX_UDP_SIZE]
+                    self._quic.send_stream_data(self._stream_id, segment)
+                await asyncio.sleep(0.03)
+        # self._quic.send_stream_data(self._stream_id, b'', end_stream=True)
+        # cap.release()
         print("Video stream has ended.")
 
 
@@ -158,7 +161,7 @@ async def run_stream_UDP(app):
 
 class VideoStreamApp:
     def __init__(self, root):
-        global quality
+        global quality, QUIC_On_Off
         quality = 90
         self.root = root
         self.root.title("Клиент UDP/QUIC")
@@ -284,16 +287,20 @@ class VideoStreamApp:
     def start_video_stream_QUIC(self):
         self.start_button_QUIC.config(state=tk.DISABLED)
         print("Начинается стрим на QUIC...")
-        self.is_working = True
+        global QUIC_On_Off
+        QUIC_On_Off = False
         threading.Thread(target=self.run_client_thread_QUIC).start()
 
     def stop_stream(self):
+        global QUIC_On_Off
+        QUIC_On_Off = True
         self.is_working = False
         self.start_button_UPD.config(state=tk.ACTIVE)
         self.start_button_QUIC.config(state=tk.ACTIVE)
         self.label_server_UDP.pack_forget()
         self.label_server_QUIC.pack_forget()
         self.label_technical_UDP.pack_forget()
+
 
     def run_client_thread_QUIC(self):
         asyncio.run(run_stream_QUIC(self))
